@@ -644,5 +644,10 @@ def download_file(filename, token):
         
     return send_file(file_path, as_attachment=True, download_name=filename)
 
+import os
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Get the port from the environment variable, default to 5000 for local development
+    port = int(os.environ.get('PORT', 5000))
+    # Run the app on 0.0.0.0 to be accessible externally, and on the Heroku-assigned port
+    app.run(host='0.0.0.0', port=port)
