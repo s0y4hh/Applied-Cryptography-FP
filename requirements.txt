@@ -1,6 +1,6 @@
 aadict==0.2.3
 about-time==4.2.1
-above==2.8
+above==0.0.1 
 acstore==20240407
 adblockparser==0.7
 adns==1.4+py1
@@ -299,6 +299,7 @@ grokevt==0.5
 gssapi==1.9.0
 gunicorn==23.0.0
 gvm-tools==25.3.0
+gyp-next==0.16.2
 h11==0.14.0
 h2==4.1.0
 h8mail==2.5.6
