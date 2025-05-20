@@ -24,19 +24,16 @@
     <div
       class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden"
     >
-      <!-- Background icon -->
       <div
-        class="absolute -top-10 -right-10 text-secondary/10 dark:text-secondary-dark/5 text-8xl transform rotate-12"
+        class="absolute -bottom-12 -left-12 text-secondary/10 dark:text-secondary-dark/5 text-9xl transform -rotate-12 group-bg-icon"
       >
-        <i data-lucide="key-round"></i>
+        <i data-lucide="lock-keyhole"></i>
       </div>
-
       <div class="relative z-10">
-        <!-- Circular center icon -->
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full bg-secondary/10 dark:bg-secondary-dark/20 text-secondary dark:text-secondary-light mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-secondary/30"
         >
-          <i data-lucide="lock" class="h-8 w-8"></i>
+          <i data-lucide="shield-lock" class="h-8 w-8 icon-hover"></i>
         </div>
         <h3
           class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
@@ -44,25 +41,32 @@
           Symmetric Ciphers
         </h3>
         <p
-          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4"
+          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4 flex items-start"
         >
+          <i data-lucide="key" class="h-4 w-4 mr-1.5 mt-0.5 text-secondary"></i>
           Algorithms using a single key for both encryption and decryption. Fast
           and efficient for bulk data.
         </p>
         <div class="space-y-2">
           <a href="{{ url_for('xor_cipher_route') }}" class="sub-card-link">
-            <i data-lucide="shuffle" class="sub-card-icon text-purple-500"></i>
+            <i
+              data-lucide="shuffle"
+              class="sub-card-icon text-purple-500 icon-hover"
+            ></i>
             XOR Cipher
           </a>
           <a href="{{ url_for('caesar_cipher_route') }}" class="sub-card-link">
             <i
               data-lucide="rotate-ccw"
-              class="sub-card-icon text-indigo-500"
+              class="sub-card-icon text-indigo-500 icon-hover"
             ></i>
             Caesar Cipher
           </a>
           <a href="{{ url_for('block_cipher_route') }}" class="sub-card-link">
-            <i data-lucide="cuboid" class="sub-card-icon text-sky-500"></i>
+            <i
+              data-lucide="cuboid"
+              class="sub-card-icon text-sky-500 icon-hover"
+            ></i>
             Block Cipher (XOR)
           </a>
         </div>
@@ -74,15 +78,15 @@
       class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden"
     >
       <div
-        class="absolute -bottom-12 -left-12 text-primary/10 dark:text-primary-dark/5 text-9xl transform -rotate-12"
+        class="absolute -bottom-12 -left-12 text-primary/10 dark:text-primary-dark/5 text-9xl transform -rotate-12 group-bg-icon"
       >
-        <i data-lucide="key-pair"></i>
+        <i data-lucide="key"></i>
       </div>
       <div class="relative z-10">
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-primary/30"
         >
-          <i data-lucide="keys" class="h-8 w-8"></i>
+          <i data-lucide="key-square" class="h-8 w-8 icon-hover"></i>
         </div>
         <h3
           class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
@@ -90,19 +94,37 @@
           Asymmetric & Key Exchange
         </h3>
         <p
-          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4"
+          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4 flex items-start"
         >
+          <i
+            data-lucide="shield-check"
+            class="h-4 w-4 mr-1.5 mt-0.5 text-primary"
+          ></i>
           Systems using key pairs (public and private) for secure communication
           and key establishment.
         </p>
         <div class="space-y-2">
           <a href="{{ url_for('diffie_hellman_route') }}" class="sub-card-link">
-            <i data-lucide="users" class="sub-card-icon text-teal-500"></i>
+            <i
+              data-lucide="key-round"
+              class="sub-card-icon text-teal-500 icon-hover"
+            ></i>
             Diffie-Hellman
           </a>
           <a href="{{ url_for('rsa_cipher_route') }}" class="sub-card-link">
-            <i data-lucide="lock" class="sub-card-icon text-rose-500"></i> RSA
-            Cipher
+            <i
+              data-lucide="shield"
+              class="sub-card-icon text-rose-500 icon-hover"
+            ></i>
+            RSA Cipher
+          </a>
+          <!-- Add a coming soon feature with an icon -->
+          <a href="#" class="sub-card-link opacity-60 cursor-not-allowed">
+            <i
+              data-lucide="file-key"
+              class="sub-card-icon text-blue-500 icon-hover"
+            ></i>
+            ECC (Coming Soon)
           </a>
         </div>
       </div>
@@ -112,19 +134,16 @@
     <div
       class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden"
     >
-      <!-- Background icon -->
       <div
-        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500/5 dark:text-orange-400/5 text-[12rem] transform"
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500/5 dark:text-orange-400/5 text-[12rem] transform group-bg-icon"
       >
-        <i data-lucide="hash"></i>
+        <i data-lucide="fingerprint"></i>
       </div>
-
       <div class="relative z-10">
-        <!-- Circular center icon -->
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full bg-orange-500/10 dark:bg-orange-400/20 text-orange-500 dark:text-orange-400 mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-orange-500/30"
         >
-          <i data-lucide="fingerprint" class="h-8 w-8"></i>
+          <i data-lucide="file-lock" class="h-8 w-8 icon-hover"></i>
         </div>
         <h3
           class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
@@ -132,8 +151,12 @@
           Hashing Functions
         </h3>
         <p
-          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4"
+          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4 flex items-start"
         >
+          <i
+            data-lucide="fingerprint"
+            class="h-4 w-4 mr-1.5 mt-0.5 text-orange-500"
+          ></i>
           One-way functions that map data of arbitrary size to a fixed-size
           string of characters (hash digest).
         </p>
@@ -142,8 +165,32 @@
             href="{{ url_for('hashing_functions_route') }}"
             class="sub-card-link"
           >
-            <i data-lucide="webhook" class="sub-card-icon text-orange-500"></i>
-            MD5, SHA-1, SHA-256, SHA-512
+            <i
+              data-lucide="webhook"
+              class="sub-card-icon text-orange-500 icon-hover"
+            ></i>
+            MD5, SHA-1
+          </a>
+          <!-- Add additional hash options with icons -->
+          <a
+            href="{{ url_for('hashing_functions_route') }}"
+            class="sub-card-link"
+          >
+            <i
+              data-lucide="scan"
+              class="sub-card-icon text-amber-500 icon-hover"
+            ></i>
+            SHA-256
+          </a>
+          <a
+            href="{{ url_for('hashing_functions_route') }}"
+            class="sub-card-link"
+          >
+            <i
+              data-lucide="shield-alert"
+              class="sub-card-icon text-red-500 icon-hover"
+            ></i>
+            SHA-512
           </a>
         </div>
       </div>
@@ -175,5 +222,27 @@
       animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
   }
+
+  /* Add icon hover effects */
+  .icon-hover {
+    transition: transform 0.3s ease, filter 0.3s ease;
+  }
+  .icon-hover:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+
+  /* Background icon animation on card hover */
+  .group:hover .group-bg-icon {
+    transform: rotate(0deg);
+    opacity: 0.15;
+    transition: all 0.5s ease;
+  }
 </style>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    lucide.createIcons();
+  });
+</script>
 {% endblock %}

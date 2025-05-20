@@ -381,3 +381,23 @@ input[type="file"]:hover::file-selector-button {
   color: var(--hacker-secondary);
 }
 
+/* Icon hover effects */
+.icon-hover-effect {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.icon-hover-effect:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 3px var(--hacker-primary));
+}
+
+/* Rotation animation for specific icons */
+.icon-spin-hover:hover {
+  animation: spin-once 0.6s ease-in-out;
+}
+
+@keyframes spin-once {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
