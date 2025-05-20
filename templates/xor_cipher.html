@@ -1,0 +1,236 @@
+{% extends "layout.html" %} {% block content %}
+<div class="max-w-4xl mx-auto">
+  <header class="mb-8">
+    <div class="flex items-center mb-2">
+      <i
+        data-lucide="shuffle"
+        class="h-10 w-10 text-primary dark:text-primary-light mr-4"
+      ></i>
+      <h2
+        class="text-4xl font-bold text-on-surface-light dark:text-on-surface-dark"
+      >
+        XOR Cipher
+      </h2>
+    </div>
+    <p class="text-on-surface-muted dark:text-on-surface-muted">
+      A symmetric cipher that operates by applying the bitwise XOR operation to
+      each byte of plaintext with the corresponding byte of the key. It's its
+      own inverse.
+    </p>
+  </header>
+
+  <form
+    method="POST"
+    action="{{ url_for('xor_cipher_route') }}"
+    enctype="multipart/form-data"
+    class="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl shadow-xl border border-border-light dark:border-border-dark space-y-6"
+  >
+    <div>
+      <label
+        for="key_xor"
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1"
+        >Key:</label
+      >
+      <input
+        type="text"
+        id="key_xor"
+        name="key_xor"
+        value="{{ current_key_xor or '' }}"
+        class="form-input font-mono"
+        placeholder="Enter key here..."
+        required
+      />
+    </div>
+
+    <div>
+      <span
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-2"
+        >Input Type:</span
+      >
+      <div class="flex items-center space-x-4">
+        <label class="flex items-center cursor-pointer">
+          <input type="radio" name="input_type_xor" value="text"
+          class="form-radio" {{ 'checked' if not current_input_type_xor or
+          current_input_type_xor == 'text' }} onchange="toggleInputFields('xor',
+          this.value)">
+          <span class="ml-2 text-on-surface-light dark:text-on-surface-dark"
+            >Text</span
+          >
+        </label>
+        <label class="flex items-center cursor-pointer">
+          <input type="radio" name="input_type_xor" value="file"
+          class="form-radio" {{ 'checked' if current_input_type_xor == 'file' }}
+          onchange="toggleInputFields('xor', this.value)">
+          <span class="ml-2 text-on-surface-light dark:text-on-surface-dark"
+            >File</span
+          >
+        </label>
+      </div>
+    </div>
+
+    <div
+      id="text_input_xor_area"
+      class="{{ 'hidden' if current_input_type_xor == 'file' }}"
+    >
+      <label
+        for="input_text_xor"
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1"
+        >Plain Text / Cipher Text:</label
+      >
+      <textarea
+        id="input_text_xor"
+        name="input_text_xor"
+        rows="4"
+        class="form-textarea font-mono"
+        placeholder="Enter text here..."
+      >
+{{ current_input_text_xor or '' }}</textarea
+      >
+    </div>
+
+    <div
+      id="file_input_xor_area"
+      class="{{ 'hidden' if not current_input_type_xor or current_input_type_xor == 'text' }}"
+    >
+      <label
+        for="input_file_xor"
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1"
+        >Upload File:</label
+      >
+      <input
+        type="file"
+        id="input_file_xor"
+        name="input_file_xor"
+        class="form-file"
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full">
+      <i data-lucide="zap" class="mr-2 h-5 w-5"></i> Process (Encrypt/Decrypt)
+    </button>
+  </form>
+
+  {% if output_text_xor or byte_details_xor %}
+  <div
+    class="mt-8 bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl shadow-xl border border-border-light dark:border-border-dark"
+  >
+    <h3
+      class="text-2xl font-semibold mb-4 text-on-surface-light dark:text-on-surface-dark"
+    >
+      Result:
+    </h3>
+
+    {% if output_text_xor %}
+    <div class="mb-4">
+      <label
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted"
+        >Processed Text Output:</label
+      >
+      <textarea readonly class="form-textarea-readonly font-mono" rows="4">
+{{ output_text_xor }}</textarea
+      >
+      <p class="text-xs text-on-surface-muted dark:text-on-surface-muted mt-1">
+        If input was a file, the processed file would have been downloaded
+        automatically.
+      </p>
+    </div>
+    {% endif %} {% if byte_details_xor %}
+    <h4
+      class="text-xl font-semibold mt-6 mb-3 text-on-surface-light dark:text-on-surface-dark"
+    >
+      Byte-level Details (for text input):
+    </h4>
+    <div
+      class="overflow-x-auto max-h-96 rounded-lg border border-border-light dark:border-border-dark"
+    >
+      <table
+        class="min-w-full divide-y divide-border-light dark:divide-border-dark"
+      >
+        <thead class="bg-gray-50 dark:bg-gray-700/50">
+          <tr>
+            <th class="table-th">Char (In)</th>
+            <th class="table-th">In Byte (bin)</th>
+            <th class="table-th">Char (Key)</th>
+            <th class="table-th">Key Byte (bin)</th>
+            <th class="table-th">Char (Out)</th>
+            <th class="table-th">Out Byte (bin)</th>
+          </tr>
+        </thead>
+        <tbody
+          class="bg-surface-light dark:bg-surface-dark divide-y divide-border-light dark:divide-border-dark font-mono text-sm"
+        >
+          {% for detail in byte_details_xor %}
+          <tr>
+            <td class="table-td">
+              {{ detail.char }} ({{ detail.text_byte_val }})
+            </td>
+            <td class="table-td">{{ detail.text_byte_bin }}</td>
+            <td class="table-td">
+              {{ detail.key_char }} ({{ detail.key_byte_val }})
+            </td>
+            <td class="table-td">{{ detail.key_byte_bin }}</td>
+            <td class="table-td">
+              {{ detail.xor_char }} ({{ detail.xor_result_val }})
+            </td>
+            <td class="table-td">{{ detail.xor_result_bin }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %} {% if download_url %}
+  <div class="mt-6">
+    <h4 class="text-xl mb-2">File Ready</h4>
+    <div class="flex items-center gap-2">
+      <p>{{ download_filename }}</p>
+      <a href="{{ download_url }}" class="btn btn-primary">
+        <i data-lucide="download" class="h-4 w-4 mr-1"></i>
+        Download
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Get all radio buttons for input type selection
+    const radioButtons = document.querySelectorAll(
+      'input[name="input_type_xor"]'
+    );
+
+    // Add event listeners to each radio button
+    radioButtons.forEach(function (radio) {
+      radio.addEventListener("change", function () {
+        const textArea = document.getElementById("text_input_xor_area");
+        const fileArea = document.getElementById("file_input_xor_area");
+
+        if (this.value === "text") {
+          textArea.style.display = "block";
+          fileArea.style.display = "none";
+        } else {
+          textArea.style.display = "none";
+          fileArea.style.display = "block";
+        }
+      });
+    });
+
+    // Initialize on page load
+    const selectedInput = document.querySelector(
+      'input[name="input_type_xor"]:checked'
+    ).value;
+    const textArea = document.getElementById("text_input_xor_area");
+    const fileArea = document.getElementById("file_input_xor_area");
+
+    if (selectedInput === "text") {
+      textArea.style.display = "block";
+      fileArea.style.display = "none";
+    } else {
+      textArea.style.display = "none";
+      fileArea.style.display = "block";
+    }
+  });
+</script>

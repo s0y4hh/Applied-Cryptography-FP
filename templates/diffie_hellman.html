@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex items-center mb-6">
+        <i data-lucide="key-round" class="h-8 w-8 text-primary dark:text-primary-light mr-3"></i>
+        <h2 class="text-3xl font-bold text-on-surface-light dark:text-on-surface-dark">Diffie-Hellman Key Exchange</h2>
+    </div>
+    <p class="mb-6 text-on-surface-muted dark:text-on-surface-muted">
+        Simulate a Diffie-Hellman key exchange. First, set up your parameters (p, g, private key) to generate your public key.
+        Then, "exchange" public keys with a partner and use the derived shared secret to encrypt/decrypt messages (using XOR for this demo).
+    </p>
+
+    <form method="POST" action="{{ url_for('diffie_hellman_route') }}" class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1 bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark space-y-4">
+                <h3 class="text-xl font-semibold text-on-surface-light dark:text-on-surface-dark border-b border-border-light dark:border-border-dark pb-2 mb-4">Settings</h3>
+                <div>
+                    <label for="prime_p" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Prime Number (p):</label>
+                    <input type="number" id="prime_p" name="prime_p" value="{{ p_val or '' }}" class="w-full p-2 bg-background-light dark:bg-gray-700 border rounded-md focus:ring-primary focus:border-primary {% if p_error %} border-red-500 dark:border-red-500 {% else %} border-border-light dark:border-gray-600 {% endif %}" placeholder="e.g., 23">
+                    {% if p_error %} <p class="text-xs text-red-500 mt-1">{{ p_val }} is not a prime number.</p> {% endif %}
+                </div>
+                <div>
+                    <label for="generator_g" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Generator (g):</label>
+                    <input type="number" id="generator_g" name="generator_g" value="{{ g_val or '' }}" class="w-full p-2 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary" placeholder="e.g., 5 (primitive root mod p)">
+                </div>
+                <div>
+                    <label for="private_key" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Your Private Key (a or b):</label>
+                    <input type="number" id="private_key" name="private_key" value="{{ private_key_val or '' }}" class="w-full p-2 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary" placeholder="e.g., 6">
+                </div>
+                {% if public_key %}
+                <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-md">
+                    <p class="text-sm font-medium text-green-700 dark:text-green-300">Your Public Key (A or B):</p>
+                    <p class="text-lg font-bold text-green-800 dark:text-green-200 font-mono">{{ public_key }}</p>
+                </div>
+                {% endif %}
+                 <button type="submit" name="action" value="generate_key" class="w-full mt-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center">
+                    <i data-lucide="settings-2" class="mr-2 h-5 w-5"></i> Generate/Update Public Key
+                </button>
+            </div>
+
+            <div class="md:col-span-2 bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark space-y-4">
+                <h3 class="text-xl font-semibold text-on-surface-light dark:text-on-surface-dark border-b border-border-light dark:border-border-dark pb-2 mb-4">Secure Chat Simulation</h3>
+                 <div>
+                    <label for="received_public_key" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Partner's Public Key (B or A):</label>
+                    <input type="number" id="received_public_key" name="received_public_key" value="{{ received_public_key or '' }}" class="w-full p-2 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary" placeholder="Enter partner's public key">
+                </div>
+                <div>
+                    <label for="message_text" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Message to Send / Ciphertext to Receive:</label>
+                    <textarea id="message_text" name="message_text" rows="3" class="w-full p-2 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary font-mono" placeholder="Enter message or ciphertext...">{{ message_text or '' }}</textarea>
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" name="action" value="send_message" class="flex-1 bg-primary hover:bg-primary-dark dark:bg-primary-light dark:hover:bg-primary text-white dark:text-gray-900 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center">
+                        <i data-lucide="send" class="mr-2 h-5 w-5"></i> Encrypt & Send
+                    </button>
+                    <button type="submit" name="action" value="receive_message" class="flex-1 bg-secondary hover:bg-secondary-dark dark:bg-secondary-light dark:hover:bg-secondary text-white dark:text-gray-900 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center">
+                        <i data-lucide="download" class="mr-2 h-5 w-5"></i> Decrypt Received
+                    </button>
+                </div>
+
+                {% if sent_encrypted_message %}
+                <div class="mt-4 p-3 bg-sky-50 dark:bg-sky-900/30 border border-sky-300 dark:border-sky-700 rounded-md">
+                    <p class="text-sm font-medium text-sky-700 dark:text-sky-300">Sent (Encrypted with Shared Secret):</p>
+                    <p class="font-mono text-sky-800 dark:text-sky-200 break-all">{{ sent_encrypted_message }}</p>
+                </div>
+                {% endif %}
+                {% if received_decrypted_message %}
+                <div class="mt-4 p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 rounded-md">
+                    <p class="text-sm font-medium text-emerald-700 dark:text-emerald-300">Received (Decrypted with Shared Secret):</p>
+                    <p class="font-mono text-emerald-800 dark:text-emerald-200 break-all">{{ received_decrypted_message }}</p>
+                </div>
+                {% endif %}
+                {% if shared_secret_debug %}
+                 <p class="text-xs text-on-surface-muted dark:text-on-surface-muted mt-2">Debug: Shared Secret = {{ shared_secret_debug }} (Used as XOR key)</p>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

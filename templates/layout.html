@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CryptoHackerLab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Tailwind dark mode configuration
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["JetBrains Mono", "monospace"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              primary: {
+                DEFAULT: "#00ff00",
+              },
+              secondary: {
+                DEFAULT: "#00ccff",
+              },
+              background: {
+                DEFAULT: "#0a0e12",
+              },
+              surface: {
+                DEFAULT: "#121920",
+              },
+              border: {
+                DEFAULT: "#1e2a35",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-background text-white font-mono flex flex-col min-h-screen">
+    <!-- Matrix-like background -->
+    <div class="hacker-bg" id="matrix-bg"></div>
+
+    <div class="flex flex-col flex-grow">
+      <!-- Horizontal navigation bar instead of sidebar -->
+      <header class="bg-surface border-b border-border shadow-lg print:hidden">
+        <div class="container mx-auto px-4 py-3">
+          <div class="flex flex-wrap items-center justify-between">
+            <a
+              href="{{ url_for('index') }}"
+              class="text-xl font-bold text-primary flex items-center hover:opacity-80 transition-opacity"
+            >
+              <i data-lucide="terminal" class="mr-2 h-5 w-5"></i>
+              <span class="glitch-text" data-text="CryptoHack">CryptoHack</span>
+            </a>
+
+            <nav
+              class="flex items-center space-x-6 overflow-x-auto whitespace-nowrap py-2 scrollbar-thin"
+            >
+              <!-- Symmetric ciphers -->
+              <div class="flex items-center gap-4">
+                <span
+                  class="text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:inline-block"
+                  >Symmetric:</span
+                >
+                <a
+                  href="{{ url_for('xor_cipher_route') }}"
+                  class="nav-link-horizontal {{ 'active' if request.endpoint == 'xor_cipher_route' }}"
+                >
+                  <i data-lucide="shuffle" class="nav-icon-horizontal"></i> XOR
+                </a>
+                <a
+                  href="{{ url_for('caesar_cipher_route') }}"
+                  class="nav-link-horizontal {{ 'active' if request.endpoint == 'caesar_cipher_route' }}"
+                >
+                  <i data-lucide="move" class="nav-icon-horizontal"></i> Caesar
+                </a>
+                <a
+                  href="{{ url_for('block_cipher_route') }}"
+                  class="nav-link-horizontal {{ 'active' if request.endpoint == 'block_cipher_route' }}"
+                >
+                  <i data-lucide="grid" class="nav-icon-horizontal"></i> Block
+                </a>
+              </div>
+
+              <!-- Asymmetric & Key Exchange -->
+              <div class="flex items-center gap-4">
+                <span
+                  class="text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:inline-block"
+                  >Asymmetric:</span
+                >
+                <a
+                  href="{{ url_for('diffie_hellman_route') }}"
+                  class="nav-link-horizontal {{ 'active' if request.endpoint == 'diffie_hellman_route' }}"
+                >
+                  <i data-lucide="key" class="nav-icon-horizontal"></i> DH
+                </a>
+                <a
+                  href="{{ url_for('rsa_cipher_route') }}"
+                  class="nav-link-horizontal {{ 'active' if request.endpoint == 'rsa_cipher_route' }}"
+                >
+                  <i data-lucide="lock" class="nav-icon-horizontal"></i> RSA
+                </a>
+              </div>
+
+              <!-- Hashing -->
+              <div class="flex items-center gap-4">
+                <span
+                  class="text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:inline-block"
+                  >Hash:</span
+                >
+                <a
+                  href="{{ url_for('hashing_functions_route') }}"
+                  class="nav-link-horizontal {{ 'active' if request.endpoint == 'hashing_functions_route' }}"
+                >
+                  <i data-lucide="fingerprint" class="nav-icon-horizontal"></i>
+                  Hash
+                </a>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 p-6 md:p-10 overflow-auto">
+        <div
+          class="py-2 px-3 bg-black text-primary mb-4 rounded overflow-hidden terminal-header"
+        >
+          <span class="text-xs font-mono"
+            >root@cryptohack:~# <span class="animate-pulse">_</span></span
+          >
+        </div>
+
+        {% include 'partials/_flashes.html' %} {% block content %}{% endblock %}
+      </main>
+    </div>
+
+    <footer
+      class="text-center p-4 text-xs text-gray-600 border-t border-border print:hidden"
+    >
+      <span class="text-primary">[</span> CryptoHack Terminal
+      <span class="text-primary">]</span> ~ Access granted at {{
+      SCRIPT_START_TIME.strftime('%Y-%m-%d %H:%M:%S') }}
+    </footer>
+
+    <!-- Add Matrix Effect Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Matrix background effect
+        const matrixBg = document.getElementById("matrix-bg");
+
+        function createMatrixColumn() {
+          const column = document.createElement("div");
+          column.classList.add("matrix-text");
+
+          // Generate random binary/hex characters
+          let text = "";
+          const length = 30 + Math.floor(Math.random() * 100);
+          const chars =
+            "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+
+          for (let i = 0; i < length; i++) {
+            text += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+
+          column.textContent = text;
+
+          // Random position and speed
+          column.style.left = `${Math.random() * 100}%`;
+          column.style.animationDuration = `${15 + Math.random() * 20}s`;
+
+          matrixBg.appendChild(column);
+
+          // Remove after animation
+          setTimeout(() => {
+            column.remove();
+          }, 30000);
+        }
+
+        // Create initial columns
+        for (let i = 0; i < 20; i++) {
+          createMatrixColumn();
+        }
+
+        // Add new columns periodically
+        setInterval(createMatrixColumn, 1000);
+
+        // Initialize Lucide icons
+        if (
+          typeof lucide !== "undefined" &&
+          typeof lucide.createIcons === "function"
+        ) {
+          lucide.createIcons();
+        }
+      });
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,303 @@
+/* cryptography_app/static/css/style.css */
+
+:root {
+  --hacker-bg: #0a0e12;
+  --hacker-surface: #121920;
+  --hacker-border: #1e2a35;
+  --hacker-text: #e6edf3;
+  --hacker-muted: #768390;
+  --hacker-primary: #00ff00;
+  --hacker-primary-glow: rgba(0, 255, 0, 0.25);
+  --hacker-secondary: #00ccff;
+  --hacker-danger: #ff375f;
+  --hacker-terminal: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--hacker-bg);
+  color: var(--hacker-text);
+  font-family: var(--hacker-terminal);
+  border-top: 2px solid var(--hacker-primary);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--hacker-bg); }
+::-webkit-scrollbar-thumb { 
+  background-color: var(--hacker-primary);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { 
+  background-color: var(--hacker-secondary);
+}
+
+/* Firefox scrollbar */
+html { scrollbar-width: thin; }
+html { scrollbar-color: var(--hacker-primary) var(--hacker-bg); }
+
+/* Form inputs */
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--hacker-border);
+  border-radius: 3px;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.1);
+  color: var(--hacker-text);
+  transition: all 0.2s ease;
+  font-family: var(--hacker-terminal);
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--hacker-primary);
+  box-shadow: 0 0 8px var(--hacker-primary-glow);
+  outline: none;
+}
+
+/* Buttons */
+.btn {
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: var(--hacker-terminal);
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background-color: var(--hacker-surface);
+  color: var(--hacker-primary);
+  border-color: var(--hacker-primary);
+}
+
+.btn:hover {
+  box-shadow: 0 0 15px var(--hacker-primary-glow);
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--hacker-primary);
+  color: #000;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background-color: transparent;
+  color: var(--hacker-primary);
+}
+
+/* Terminals/Code blocks */
+.form-textarea-readonly {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #000;
+  border: 1px solid var(--hacker-border);
+  border-radius: 3px;
+  color: var(--hacker-primary);
+  font-family: var(--hacker-terminal);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.1) inset;
+}
+
+.hacker-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.07;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.matrix-text {
+  position: absolute;
+  font-family: var(--hacker-terminal);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--hacker-primary);
+  text-shadow: 0 0 5px var(--hacker-primary);
+  white-space: nowrap;
+  transform: translateY(0);
+  animation: matrix-fall 20s linear infinite;
+}
+
+@keyframes matrix-fall {
+  0% {
+    transform: translateY(-100%);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Glitch effect for headers */
+.glitch-text {
+  position: relative;
+  animation: glitch-skew 1s infinite linear alternate-reverse;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch-text::before {
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+  clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+  text-shadow: -2px 0 var(--hacker-danger);
+  transform: translateX(-2px);
+}
+
+.glitch-text::after {
+  animation: glitch-anim-2 2s infinite linear alternate-reverse;
+  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+  text-shadow: 2px 0 var(--hacker-secondary);
+  transform: translateX(2px);
+}
+
+@keyframes glitch-anim {
+  0% { transform: translateX(0); }
+  80% { transform: translateX(0); }
+  85% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+  95% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes glitch-anim-2 {
+  0% { transform: translateX(0); }
+  80% { transform: translateX(0); }
+  85% { transform: translateX(2px); }
+  90% { transform: translateX(-2px); }
+  95% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes glitch-skew {
+  0% { transform: skew(0deg); }
+  5% { transform: skew(0deg); }
+  10% { transform: skew(0.5deg); }
+  15% { transform: skew(0deg); }
+  70% { transform: skew(0deg); }
+  75% { transform: skew(-0.5deg); }
+  80% { transform: skew(0deg); }
+  100% { transform: skew(0deg); }
+}
+
+/* Terminal card styles */
+.terminal-card {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--hacker-border);
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.terminal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 25px;
+  background: linear-gradient(to bottom, #1a1a1a, #000);
+  border-bottom: 1px solid var(--hacker-border);
+}
+
+.terminal-card::after {
+  content: '• • •';
+  position: absolute;
+  top: 7px;
+  left: 10px;
+  color: #555;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.terminal-card-content {
+  padding: 35px 15px 15px;
+}
+
+/* Blinking cursor */
+.cursor-blink::after {
+  content: '_';
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Code highlight */
+.code-highlight {
+  color: var(--hacker-secondary);
+}
+
+/* Error message styling */
+.flash-message-danger {
+  border-left: 4px solid var(--hacker-danger);
+  background-color: rgba(255, 55, 95, 0.1);
+  color: var(--hacker-danger);
+}
+
+/* Success message styling */
+.flash-message-success {
+  border-left: 4px solid var(--hacker-primary);
+  background-color: rgba(0, 255, 0, 0.1);
+  color: var(--hacker-primary);
+}
+
+/* Navigation spacing improvements */
+nav.space-y-1_5 {
+  /* Increase overall spacing between nav items */
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Category headers spacing */
+nav .px-3.text-xs.font-semibold.text-gray-500.uppercase {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+}
+
+/* First category header needs less top margin */
+nav .px-3.text-xs.font-semibold.text-gray-500.uppercase:first-child {
+  margin-top: 0.5rem;
+}
+
+/* Individual nav links */
+.nav-link {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+}
+
+/* Add more space between categories */
+.nav-category {
+  margin-bottom: 2rem;
+}
+
+/* Add this to fix the hidden class */
+.hidden {
+  display: none !important;
+}
+

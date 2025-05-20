@@ -1,0 +1,224 @@
+{% extends "layout.html" %} {% block content %}
+<div class="max-w-4xl mx-auto">
+  <header class="mb-8">
+    <div class="flex items-center mb-2">
+      <i
+        data-lucide="rotate-ccw"
+        class="h-10 w-10 text-primary dark:text-primary-light mr-4"
+      ></i>
+      <h2
+        class="text-4xl font-bold text-on-surface-light dark:text-on-surface-dark"
+      >
+        Caesar Cipher
+      </h2>
+    </div>
+    <p class="text-on-surface-muted dark:text-on-surface-muted">
+      A simple substitution cipher where each letter (or byte for files) in the
+      plaintext is shifted a certain number of places down or up the alphabet
+      (or byte range 0-255).
+    </p>
+  </header>
+
+  <form
+    method="POST"
+    action="{{ url_for('caesar_cipher_route') }}"
+    enctype="multipart/form-data"
+    class="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl shadow-xl border border-border-light dark:border-border-dark space-y-6"
+  >
+    <div>
+      <label
+        for="shift_values_caesar"
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1"
+        >Shift Value(s):</label
+      >
+      <input
+        type="text"
+        id="shift_values_caesar"
+        name="shift_values_caesar"
+        value="{{ current_shifts_caesar or '' }}"
+        class="form-input font-mono"
+        placeholder="e.g., 3 or 2,-4,3,2"
+        required
+      />
+      <p class="text-xs text-on-surface-muted dark:text-on-surface-muted mt-1">
+        Enter one or more comma-separated integer shifts (e.g., '3' or
+        '2,-4,3'). Applied sequentially per character/byte.
+      </p>
+    </div>
+
+    <div>
+      <span
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-2"
+        >Operation:</span
+      >
+      <div class="flex items-center space-x-4">
+        <label class="flex items-center cursor-pointer">
+          <input type="radio" name="operation_caesar" value="encrypt"
+          class="form-radio" {{ 'checked' if not current_operation_caesar or
+          current_operation_caesar == 'encrypt' }}>
+          <span class="ml-2 text-on-surface-light dark:text-on-surface-dark"
+            >Encrypt</span
+          >
+        </label>
+        <label class="flex items-center cursor-pointer">
+          <input type="radio" name="operation_caesar" value="decrypt"
+          class="form-radio" {{ 'checked' if current_operation_caesar ==
+          'decrypt' }}>
+          <span class="ml-2 text-on-surface-light dark:text-on-surface-dark"
+            >Decrypt</span
+          >
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <span
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-2"
+        >Input Type:</span
+      >
+      <div class="flex items-center space-x-4">
+        <label class="flex items-center cursor-pointer">
+          <input type="radio" name="input_type_caesar" value="text"
+          class="form-radio" {{ 'checked' if not current_input_type_caesar or
+          current_input_type_caesar == 'text' }}
+          onchange="toggleInputFields('caesar', this.value)">
+          <span class="ml-2 text-on-surface-light dark:text-on-surface-dark"
+            >Text</span
+          >
+        </label>
+        <label class="flex items-center cursor-pointer">
+          <input type="radio" name="input_type_caesar" value="file"
+          class="form-radio" {{ 'checked' if current_input_type_caesar == 'file'
+          }} onchange="toggleInputFields('caesar', this.value)">
+          <span class="ml-2 text-on-surface-light dark:text-on-surface-dark"
+            >File</span
+          >
+        </label>
+      </div>
+    </div>
+
+    <div
+      id="text_input_caesar_area"
+      class="{{ 'hidden' if current_input_type_caesar == 'file' }}"
+    >
+      <label
+        for="input_text_caesar"
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1"
+        >Input Text:</label
+      >
+      <textarea
+        id="input_text_caesar"
+        name="input_text_caesar"
+        rows="4"
+        class="form-textarea font-mono"
+        placeholder="Enter text to encrypt/decrypt..."
+      >
+{{ current_input_text_caesar or '' }}</textarea
+      >
+    </div>
+
+    <div
+      id="file_input_caesar_area"
+      class="{{ 'hidden' if not current_input_type_caesar or current_input_type_caesar == 'text' }}"
+    >
+      <label
+        for="input_file_caesar"
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1"
+        >Upload File:</label
+      >
+      <input
+        type="file"
+        id="input_file_caesar"
+        name="input_file_caesar"
+        class="form-file"
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full">
+      <i data-lucide="zap" class="mr-2 h-5 w-5"></i> Process
+    </button>
+  </form>
+
+  {% if output_text_caesar or char_details_caesar %}
+  <div
+    class="mt-8 bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl shadow-xl border border-border-light dark:border-border-dark"
+  >
+    <h3
+      class="text-2xl font-semibold mb-4 text-on-surface-light dark:text-on-surface-dark"
+    >
+      Result:
+    </h3>
+
+    {% if output_text_caesar %}
+    <div class="mb-4">
+      <label
+        class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted"
+        >Output Text:</label
+      >
+      <textarea readonly class="form-textarea-readonly font-mono" rows="4">
+{{ output_text_caesar }}</textarea
+      >
+      <p class="text-xs text-on-surface-muted dark:text-on-surface-muted mt-1">
+        If input was a file, the processed file would have been downloaded
+        automatically. For text, non-UTF8 results from byte shifts are shown as
+        hex.
+      </p>
+    </div>
+    {% endif %} {% if char_details_caesar %}
+    <h4
+      class="text-xl font-semibold mt-6 mb-3 text-on-surface-light dark:text-on-surface-dark"
+    >
+      Byte Transformation Details (for text/small data):
+    </h4>
+    <div
+      class="overflow-x-auto max-h-96 rounded-lg border border-border-light dark:border-border-dark"
+    >
+      <table
+        class="min-w-full divide-y divide-border-light dark:divide-border-dark"
+      >
+        <thead class="bg-gray-50 dark:bg-gray-700/50">
+          <tr>
+            <th class="table-th">Original Byte (Char/Hex)</th>
+            <th class="table-th">Shift Applied</th>
+            <th class="table-th">Processed Byte (Char/Hex)</th>
+            <th class="table-th">Note</th>
+          </tr>
+        </thead>
+        <tbody
+          class="bg-surface-light dark:bg-surface-dark divide-y divide-border-light dark:divide-border-dark font-mono text-sm"
+        >
+          {% for detail in char_details_caesar %}
+          <tr>
+            <td class="table-td">
+              {{ detail.original_char }} ({{ detail.original_byte }})
+            </td>
+            <td class="table-td">{{ detail.shift_val }}</td>
+            <td class="table-td">
+              {{ detail.processed_char }} ({{ detail.processed_byte }})
+            </td>
+            <td class="table-td">{{ detail.note or '' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %} {% if download_url %}
+  <div class="mt-6">
+    <div class="terminal-card">
+      <div class="terminal-card-content">
+        <h4 class="text-xl mb-2 text-primary">File Ready for Download</h4>
+        <div class="flex items-center gap-2 mt-3">
+          <p class="text-hacker-muted">{{ download_filename }}</p>
+          <a href="{{ download_url }}" class="btn btn-primary">
+            <i data-lucide="download" class="h-4 w-4 mr-1"></i>
+            Download
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

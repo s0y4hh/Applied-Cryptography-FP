@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <header class="mb-8">
+        <div class="flex items-center mb-2">
+            <i data-lucide="hash" class="h-10 w-10 text-primary dark:text-primary-light mr-4"></i>
+            <h2 class="text-4xl font-bold text-on-surface-light dark:text-on-surface-dark">Hashing Functions</h2>
+        </div>
+        <p class="text-on-surface-muted dark:text-on-surface-muted">
+            Generate a fixed-size hash value (digest) from input text or a file using various standard hashing algorithms. Hashing is one-way.
+        </p>
+    </header>
+
+    <form method="POST" action="{{ url_for('hashing_functions_route') }}" enctype="multipart/form-data" class="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl shadow-xl border border-border-light dark:border-border-dark space-y-6">
+        
+        <div>
+            <label for="hash_algorithm" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Hashing Algorithm:</label>
+            <select id="hash_algorithm" name="hash_algorithm" class="form-select">
+                {% for algo in hash_algorithms %}
+                <option value="{{ algo }}" {{ 'selected' if current_algorithm_hash == algo }}>{{ algo.upper() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <span class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-2">Input Type:</span>
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="input_type_hash" value="text" class="form-radio" {{ 'checked' if not current_input_type_hash or current_input_type_hash == 'text' }} onchange="toggleInputFields('hash', this.value)">
+                    <span class="ml-2 text-on-surface-light dark:text-on-surface-dark">Text</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="input_type_hash" value="file" class="form-radio" {{ 'checked' if current_input_type_hash == 'file' }} onchange="toggleInputFields('hash', this.value)">
+                    <span class="ml-2 text-on-surface-light dark:text-on-surface-dark">File</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="text_input_hash_area" class="{{ 'hidden' if current_input_type_hash == 'file' }}">
+            <label for="input_text_hash" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Input Text:</label>
+            <textarea id="input_text_hash" name="input_text_hash" rows="4" class="form-textarea font-mono" placeholder="Enter text to hash...">{{ current_input_text_hash or '' }}</textarea>
+        </div>
+
+        <div id="file_input_hash_area" class="{{ 'hidden' if not current_input_type_hash or current_input_type_hash == 'text' }}">
+            <label for="input_file_hash" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Upload File:</label>
+            <input type="file" id="input_file_hash" name="input_file_hash" class="form-file">
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-full">
+            <i data-lucide="webhook" class="mr-2 h-5 w-5"></i> Calculate Hash
+        </button>
+    </form>
+
+    {% if hash_digest %}
+    <div class="mt-8 bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-xl shadow-xl border border-border-light dark:border-border-dark">
+        <h3 class="text-2xl font-semibold mb-1 text-on-surface-light dark:text-on-surface-dark">Hash Result:</h3>
+        <p class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4">
+            Algorithm: <span class="font-semibold text-primary dark:text-primary-light">{{ current_algorithm_hash.upper() }}</span>
+            {% if original_filename_hash %} | File: <span class="font-semibold">{{ original_filename_hash }}</span>{% endif %}
+        </p>
+        
+        <div>
+            <label class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted">Hash Digest (Hex):</label>
+            <textarea readonly class="form-textarea-readonly font-mono text-sm" rows="{{ (hash_digest|length / 64) | round(0, 'ceil') + 1 }}">{{ hash_digest }}</textarea>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

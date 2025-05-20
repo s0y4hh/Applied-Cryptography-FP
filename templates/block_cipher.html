@@ -1,0 +1,158 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center mb-6">
+        <i data-lucide="cuboid" class="h-8 w-8 text-primary dark:text-primary-light mr-3"></i>
+        <h2 class="text-3xl font-bold text-on-surface-light dark:text-on-surface-dark">Block Cipher (XOR-based)</h2>
+    </div>
+    <p class="mb-6 text-on-surface-muted dark:text-on-surface-muted">
+        A simple XOR-based block cipher demonstration. Data is processed in blocks, XORed with a key.
+        Various padding modes can be applied. This simulates ECB mode with XOR.
+    </p>
+
+    <form method="POST" action="{{ url_for('block_cipher_route') }}" enctype="multipart/form-data" class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="block_size" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Block Size (bits):</label>
+                <select id="block_size" name="block_size" class="w-full p-3 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:focus:ring-primary-light dark:focus:border-primary-light">
+                    {% for size in block_sizes %}
+                    <option value="{{ size }}" {{ 'selected' if current_block_size == size }}>{{ size }} bits</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="padding_mode" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Padding Mode:</label>
+                <select id="padding_mode" name="padding_mode" class="w-full p-3 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:focus:ring-primary-light dark:focus:border-primary-light">
+                    {% for mode in padding_modes %}
+                    <option value="{{ mode }}" {{ 'selected' if current_padding_mode == mode }}>{{ mode }}</option>
+                    {% endfor %}
+                </select>
+                <p class="text-xs text-on-surface-muted dark:text-on-surface-muted mt-1">CMS (PKCS#7) is generally recommended.</p>
+            </div>
+        </div>
+
+        <div>
+            <label for="key_block" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Key:</label>
+            <input type="text" id="key_block" name="key_block" value="{{ current_key_block or '' }}" class="w-full p-3 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:focus:ring-primary-light dark:focus:border-primary-light font-mono" placeholder="Enter key for block cipher...">
+        </div>
+
+        <div>
+            <span class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Input Type:</span>
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center">
+                    <input type="radio" name="input_type_block" value="text" class="form-radio h-4 w-4 text-primary focus:ring-primary-light" {{ 'checked' if not current_input_type_block or current_input_type_block == 'text' }} onchange="toggleBlockInput(this.value)">
+                    <span class="ml-2 text-on-surface-light dark:text-on-surface-dark">Text</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="input_type_block" value="file" class="form-radio h-4 w-4 text-primary focus:ring-primary-light" {{ 'checked' if current_input_type_block == 'file' }} onchange="toggleBlockInput(this.value)">
+                    <span class="ml-2 text-on-surface-light dark:text-on-surface-dark">File</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="text_input_block_area" class="{{ 'hidden' if current_input_type_block == 'file' }}">
+            <label for="input_text_block" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Input Text:</label>
+            <textarea id="input_text_block" name="input_text_block" rows="4" class="w-full p-3 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md focus:ring-primary focus:border-primary dark:focus:ring-primary-light dark:focus:border-primary-light font-mono" placeholder="Enter text here...">{{ current_input_text_block or '' }}</textarea>
+        </div>
+
+        <div id="file_input_block_area" class="{{ 'hidden' if not current_input_type_block or current_input_type_block == 'text' }}">
+            <label for="input_file_block" class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Upload File:</label>
+            <input type="file" id="input_file_block" name="input_file_block" class="w-full text-sm text-on-surface-muted dark:text-on-surface-muted file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light/20 dark:file:bg-primary-dark/30 file:text-primary dark:file:text-primary-light hover:file:bg-primary-light/30 dark:hover:file:bg-primary-dark/40">
+            <p class="text-xs text-on-surface-muted dark:text-on-surface-muted mt-1">Max file size determined by server configuration.</p>
+        </div>
+        
+        <div>
+            <span class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted mb-1">Operation:</span>
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center">
+                    <input type="radio" name="operation_block" value="encrypt" class="form-radio h-4 w-4 text-primary focus:ring-primary-light" {{ 'checked' if not current_operation_block or current_operation_block == 'encrypt' }}>
+                    <span class="ml-2 text-on-surface-light dark:text-on-surface-dark">Encrypt</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="operation_block" value="decrypt" class="form-radio h-4 w-4 text-primary focus:ring-primary-light" {{ 'checked' if current_operation_block == 'decrypt' }}>
+                    <span class="ml-2 text-on-surface-light dark:text-on-surface-dark">Decrypt</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="flex items-center">
+            <input type="checkbox" id="show_details_block" name="show_details_block" class="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary-light" {{ 'checked' if current_show_details }}>
+            <label for="show_details_block" class="ml-2 block text-sm text-on-surface-light dark:text-on-surface-dark">Show Details (for debugging/learning)</label>
+        </div>
+        <button type="submit" class="w-full bg-primary hover:bg-primary-dark dark:bg-primary-light dark:hover:bg-primary text-white dark:text-gray-900 font-semibold py-3 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center">
+            <i data-lucide="zap" class="mr-2 h-5 w-5"></i> Process Data
+        </button>
+    </form>
+
+    {% if output_text_block or output_file_info or details_block %}
+    <div class="mt-8 bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-md border border-border-light dark:border-border-dark">
+        <h3 class="text-2xl font-semibold mb-4 text-on-surface-light dark:text-on-surface-dark">Result:</h3>
+        
+        {% if output_text_block %}
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-on-surface-muted dark:text-on-surface-muted">Output Text:</label>
+            <textarea readonly class="w-full p-3 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md font-mono text-on-surface-light dark:text-on-surface-dark" rows="4">{{ output_text_block }}</textarea>
+        </div>
+        {% endif %}
+
+        {% if output_file_info %}
+        <div class="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-md">
+            <p class="text-sm font-medium text-green-700 dark:text-green-300">{{ output_file_info }}</p>
+            {% if output_data_hex %}
+            <label class="block text-xs font-medium text-on-surface-muted dark:text-on-surface-muted mt-2">Output Data (Hex representation for inspection):</label>
+            <textarea readonly class="w-full p-2 mt-1 bg-background-light dark:bg-gray-700 border border-border-light dark:border-gray-600 rounded-md font-mono text-xs" rows="3">{{ output_data_hex[:500] }}{% if output_data_hex|length > 500 %}...{% endif %}</textarea>
+            <p class="text-xs text-on-surface-muted dark:text-on-surface-muted mt-1">Note: Actual file download is not implemented in this web UI view but would be `send_file` in Flask.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if details_block %}
+        <h4 class="text-xl font-semibold mt-6 mb-3 text-on-surface-light dark:text-on-surface-dark">Processing Details:</h4>
+        <div class="overflow-x-auto max-h-96 bg-background-light dark:bg-gray-900/50 p-4 rounded-md border border-border-light dark:border-border-dark">
+            <pre class="font-mono text-xs text-on-surface-light dark:text-on-surface-dark whitespace-pre-wrap break-all">{% for detail_line in details_block %}{{ detail_line }}\n{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if download_url %}
+    <div class="mt-6">
+      <div class="terminal-card">
+        <div class="terminal-card-content">
+          <h4 class="text-xl mb-2 text-primary">File Ready for Download</h4>
+          <div class="flex items-center gap-2 mt-3">
+            <p class="text-hacker-muted">{{ download_filename }}</p>
+            <a href="{{ download_url }}" class="btn btn-primary">
+              <i data-lucide="download" class="h-4 w-4 mr-1"></i>
+              Download
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function toggleBlockInput(selectedType) {
+        const textArea = document.getElementById('text_input_block_area');
+        const fileArea = document.getElementById('file_input_block_area');
+        if (selectedType === 'text') {
+            textArea.classList.remove('hidden');
+            fileArea.classList.add('hidden');
+        } else {
+            textArea.classList.add('hidden');
+            fileArea.classList.remove('hidden');
+        }
+    }
+    // Initialize on page load based on current selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectedRadio = document.querySelector('input[name="input_type_block"]:checked');
+        if (selectedRadio) {
+            toggleBlockInput(selectedRadio.value);
+        }
+    });
+</script>
+{% endblock %}
