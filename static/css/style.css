@@ -116,26 +116,41 @@ html { scrollbar-color: var(--hacker-primary) var(--hacker-bg); }
 .matrix-text {
   position: absolute;
   font-family: var(--hacker-terminal);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1;
   color: var(--hacker-primary);
   text-shadow: 0 0 5px var(--hacker-primary);
   white-space: nowrap;
   transform: translateY(0);
-  animation: matrix-fall 20s linear infinite;
+  opacity: 0.7;
+  animation: matrix-fall 15s linear infinite;
+}
+
+/* Add new class for leading characters */
+.matrix-char {
+  display: inline-block;
+  opacity: 0.6;
+  transform: translateY(0);
+  animation: matrix-fade 3s infinite;
+}
+
+.matrix-char.lead {
+  color: #ffffff;
+  opacity: 1;
+  text-shadow: 0 0 8px #ffffff, 0 0 12px var(--hacker-primary);
+}
+
+@keyframes matrix-fade {
+  0%, 40% { opacity: 1; }
+  60%, 100% { opacity: 0.6; }
 }
 
 @keyframes matrix-fall {
   0% {
     transform: translateY(-100%);
-    opacity: 1;
-  }
-  85% {
-    opacity: 1;
   }
   100% {
     transform: translateY(100vh);
-    opacity: 0;
   }
 }
 
@@ -299,5 +314,70 @@ nav .px-3.text-xs.font-semibold.text-gray-500.uppercase:first-child {
 /* Add this to fix the hidden class */
 .hidden {
   display: none !important;
+}
+
+/* Custom file input styling */
+input[type="file"].form-file::-webkit-file-upload-button,
+input[type="file"]::-webkit-file-upload-button {
+  background: var(--hacker-primary);
+  color: #000;
+  font-family: var(--hacker-terminal);
+  font-weight: bold;
+  border: none;
+  border-radius: 3px;
+  padding: 0.5em 1.2em;
+  margin-right: 1em;
+  box-shadow: 0 0 8px var(--hacker-primary-glow);
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+input[type="file"].form-file:hover::-webkit-file-upload-button,
+input[type="file"]:hover::-webkit-file-upload-button {
+  background: #000;
+  color: var(--hacker-primary);
+  border: 1px solid var(--hacker-primary);
+}
+
+input[type="file"].form-file::file-selector-button,
+input[type="file"]::file-selector-button {
+  background: var(--hacker-primary);
+  color: #000;
+  font-family: var(--hacker-terminal);
+  font-weight: bold;
+  border: none;
+  border-radius: 3px;
+  padding: 0.5em 1.2em;
+  margin-right: 1em;
+  box-shadow: 0 0 8px var(--hacker-primary-glow);
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+input[type="file"].form-file:hover::file-selector-button,
+input[type="file"]:hover::file-selector-button {
+  background: #000;
+  color: var(--hacker-primary);
+  border: 1px solid var(--hacker-primary);
+}
+
+/* Processing details box */
+.processing-details-box {
+  background: #10151a;
+  border: 1px solid var(--hacker-border);
+  border-radius: 5px;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-family: var(--hacker-terminal), monospace;
+  font-size: 0.97em;
+  color: var(--hacker-primary);
+  white-space: pre-wrap;
+  overflow-x: auto;
+  line-height: 1.6;
+  box-shadow: 0 0 8px rgba(0,255,0,0.07);
+}
+
+.processing-details-box strong {
+  color: var(--hacker-secondary);
 }
 

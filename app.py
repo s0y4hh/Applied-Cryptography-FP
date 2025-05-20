@@ -22,6 +22,21 @@ SCRIPT_START_TIME = datetime.datetime.now()
 def inject_script_start_time():
     return dict(SCRIPT_START_TIME=SCRIPT_START_TIME)
 
+# Add this before any route definitions
+@app.context_processor
+def inject_crypto_commands():
+    """Make crypto commands available in templates"""
+    return {
+        'crypto_command': {
+            'xor_cipher_route': 'XOR',
+            'caesar_cipher_route': 'Caesar',
+            'block_cipher_route': 'Block',
+            'diffie_hellman_route': 'DH',
+            'rsa_cipher_route': 'RSA',
+            'hashing_functions_route': 'Hash'
+        }
+    }
+
 
 def is_prime(n):
     return prime_utils.is_prime(n)
@@ -58,19 +73,9 @@ def xor_cipher_route():
         try:
             key = request.form.get('key_xor', '')
             input_type = request.form.get('input_type_xor', 'text')
-            
-            context.update({
-                'current_key_xor': key,
-                'current_input_type_xor': input_type
-            })
-
             if not key:
                 flash('Key is required for XOR Cipher.', 'danger')
                 return render_template('xor_cipher.html', **context)
-
-            input_data_bytes = b''
-            original_filename = "xor_processed_data.dat" # Default output filename
-
             if input_type == 'text':
                 text_data = request.form.get('input_text_xor', '')
                 if not text_data:
@@ -78,24 +83,23 @@ def xor_cipher_route():
                     return render_template('xor_cipher.html', **context)
                 input_data_bytes = text_data.encode('utf-8', errors='replace')
                 context['current_input_text_xor'] = text_data
-            else: # file
+            else:
                 file = request.files.get('input_file_xor')
                 if not file or file.filename == '':
                     flash('File is required for "File" type.', 'danger')
                     return render_template('xor_cipher.html', **context)
                 input_data_bytes = file.read()
-                original_filename = f"xor_{file.filename}"
-            
+                context['original_filename_xor'] = file.filename
+                original_filename = file.filename  # <-- Fix: define original_filename
             processed_bytes, byte_details = crypto_logic.xor_cipher_process(input_data_bytes, key)
             context['byte_details_xor'] = byte_details if input_type == 'text' and len(input_data_bytes) < 256 else None
-
             if input_type == 'text':
                 try:
                     context['output_text_xor'] = processed_bytes.decode('utf-8', errors='replace')
                 except UnicodeDecodeError:
                     context['output_text_xor'] = processed_bytes.hex()
                     flash("Output data is not valid UTF-8, shown as hex.", "warning")
-            else: # file
+            else:
                 # Instead of immediately returning the file:
                 # file_stream = io.BytesIO(processed_bytes)
                 # response = make_response(send_file(file_stream, as_attachment=True, download_name=original_filename))
@@ -123,11 +127,8 @@ def xor_cipher_route():
                 
                 flash(f"File '{original_filename}' processed successfully. Click the download button below.", "success")
                 
-        except ValueError as ve:
-            flash(f'XOR Cipher Error: {str(ve)}', 'danger')
         except Exception as e:
             flash(f'An unexpected error occurred: {str(e)}', 'danger')
-            
     return render_template('xor_cipher.html', **context)
 
 
@@ -137,6 +138,17 @@ def caesar_cipher_route():
     if request.method == 'POST':
         try:
             shift_values_str = request.form.get('shift_values_caesar', '')
+            if not shift_values_str:
+                flash('Shift values are required.', 'danger')
+                return render_template('caesar_cipher.html', **context)
+            try:
+                shifts = [int(s) for s in shift_values_str.replace(' ', '').split(',') if s.lstrip('-').isdigit()]
+                if not shifts:
+                    raise ValueError("Shift values must be comma-separated integers.")
+            except Exception as e:
+                flash(f'Invalid shift values: {e}', 'danger')
+                return render_template('caesar_cipher.html', **context)
+
             operation = request.form.get('operation_caesar', 'encrypt')
             input_type = request.form.get('input_type_caesar', 'text')
 
@@ -359,6 +371,26 @@ def rsa_cipher_route():
                             'private_key_rsa': f'd={d}, n={n}'
                         })
                         flash(f'Keys generated: Public(e={e}, n={n}), Private(d={d}, n={n})', 'success')
+
+                        # --- Add this block for key download ---
+                        key_text = (
+                            f"RSA Public Key:\n"
+                            f"e = {e}\n"
+                            f"n = {n}\n\n"
+                            f"RSA Private Key:\n"
+                            f"d = {d}\n"
+                            f"n = {n}\n"
+                        )
+                        if 'download_tokens' not in session:
+                            session['download_tokens'] = []
+                        download_token = secrets.token_urlsafe(16)
+                        session['download_tokens'].append(download_token)
+                        temp_filepath = os.path.join(app.config['TEMP_FOLDER'], download_token)
+                        with open(temp_filepath, 'w') as f:
+                            f.write(key_text)
+                        download_url = url_for('download_file', filename='rsa_keys.txt', token=download_token)
+                        context['rsa_key_download_url'] = download_url
+                        context['rsa_key_download_filename'] = 'rsa_keys.txt'
             
             elif action == 'encrypt_rsa':
                 message = request.form.get('message_rsa', '')
@@ -431,14 +463,20 @@ def rsa_cipher_route():
 @app.route('/block_cipher', methods=['GET', 'POST'])
 def block_cipher_route():
     context = {
-        'block_sizes': [8, 16, 32, 64, 128], # in bits
-        'padding_modes': ['CMS', 'Null', 'Space', 'RandomBits'] 
+        'block_sizes': [8, 16, 32, 64, 128],
+        'padding_modes': ['CMS', 'Null', 'Space', 'RandomBits']
     }
     if request.method == 'POST':
         try:
-            block_size_bits = int(request.form.get('block_size', 128)) # Default to 128 bits (16 bytes)
-            padding_mode = request.form.get('padding_mode', 'CMS')
+            block_size_bits = int(request.form.get('block_size', 128))
             key = request.form.get('key_block', '')
+            if not key:
+                flash('Key is required for Block Cipher.', 'danger')
+                return render_template('block_cipher.html', **context)
+            if block_size_bits not in context['block_sizes']:
+                flash('Invalid block size selected.', 'danger')
+                return render_template('block_cipher.html', **context)
+            padding_mode = request.form.get('padding_mode', 'CMS')
             operation = request.form.get('operation_block', 'encrypt') 
             input_type = request.form.get('input_type_block', 'text') 
             

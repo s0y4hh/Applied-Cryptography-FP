@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CryptoHackerLab</title>
+    <title>Kryptos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
     <link
@@ -61,7 +61,7 @@
               class="text-xl font-bold text-primary flex items-center hover:opacity-80 transition-opacity"
             >
               <i data-lucide="terminal" class="mr-2 h-5 w-5"></i>
-              <span class="glitch-text" data-text="CryptoHack">CryptoHack</span>
+              <span class="glitch-text" data-text="Kryptos">Kryptos</span>
             </a>
 
             <nav
@@ -77,18 +77,21 @@
                   href="{{ url_for('xor_cipher_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'xor_cipher_route' }}"
                 >
+                  <span class="text-primary font-bold mr-1">|</span>
                   <i data-lucide="shuffle" class="nav-icon-horizontal"></i> XOR
                 </a>
                 <a
                   href="{{ url_for('caesar_cipher_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'caesar_cipher_route' }}"
                 >
+                  <span class="text-primary font-bold mr-1">|</span>
                   <i data-lucide="move" class="nav-icon-horizontal"></i> Caesar
                 </a>
                 <a
                   href="{{ url_for('block_cipher_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'block_cipher_route' }}"
                 >
+                  <span class="text-primary font-bold mr-1">|</span>
                   <i data-lucide="grid" class="nav-icon-horizontal"></i> Block
                 </a>
               </div>
@@ -103,12 +106,14 @@
                   href="{{ url_for('diffie_hellman_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'diffie_hellman_route' }}"
                 >
+                  <span class="text-primary font-bold mr-1">|</span>
                   <i data-lucide="key" class="nav-icon-horizontal"></i> DH
                 </a>
                 <a
                   href="{{ url_for('rsa_cipher_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'rsa_cipher_route' }}"
                 >
+                  <span class="text-primary font-bold mr-1">|</span>
                   <i data-lucide="lock" class="nav-icon-horizontal"></i> RSA
                 </a>
               </div>
@@ -123,6 +128,7 @@
                   href="{{ url_for('hashing_functions_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'hashing_functions_route' }}"
                 >
+                  <span class="text-primary font-bold mr-1">|</span>
                   <i data-lucide="fingerprint" class="nav-icon-horizontal"></i>
                   Hash
                 </a>
@@ -136,9 +142,11 @@
         <div
           class="py-2 px-3 bg-black text-primary mb-4 rounded overflow-hidden terminal-header"
         >
-          <span class="text-xs font-mono"
-            >root@cryptohack:~# <span class="animate-pulse">_</span></span
-          >
+          <span class="text-xs font-mono">
+            root@kryptos:~# {% if request.endpoint != 'index' %}crypto -{{
+            crypto_command[request.endpoint] or request.endpoint }}{% endif
+            %}<span class="animate-pulse">_</span>
+          </span>
         </div>
 
         {% include 'partials/_flashes.html' %} {% block content %}{% endblock %}
@@ -148,7 +156,7 @@
     <footer
       class="text-center p-4 text-xs text-gray-600 border-t border-border print:hidden"
     >
-      <span class="text-primary">[</span> CryptoHack Terminal
+      <span class="text-primary">[</span> Kryptos Terminal
       <span class="text-primary">]</span> ~ Access granted at {{
       SCRIPT_START_TIME.strftime('%Y-%m-%d %H:%M:%S') }}
     </footer>

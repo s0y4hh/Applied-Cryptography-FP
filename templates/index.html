@@ -1,101 +1,173 @@
-{% extends "layout.html" %}
-
-{% block content %}
+{% extends "layout.html" %} {% block content %}
 <div class="text-center px-4 py-8 md:py-12">
-    <header class="mb-10 md:mb-16">
-        <h2 class="text-4xl sm:text-5xl font-extrabold text-on-surface-light dark:text-on-surface-dark mb-4">
-            Welcome to <span class="text-primary dark:text-primary-light">CryptoLab</span>!
-            <span class="text-3xl sm:text-4xl inline-block ml-2 animate-bounce">🧪</span>
-        </h2>
-        <p class="text-lg sm:text-xl text-on-surface-muted dark:text-on-surface-muted max-w-3xl mx-auto">
-            Dive into the world of cryptography. Experiment with classic and modern algorithms, understand their mechanics, and see them in action.
-            Select a tool from the sidebar to begin your exploration.
+  <header class="mb-10 md:mb-16">
+    <h2
+      class="text-4xl sm:text-5xl font-extrabold text-on-surface-light dark:text-on-surface-dark mb-4"
+    >
+      Welcome to
+      <span class="text-primary dark:text-primary-light">Kryptos</span>!
+      <span class="text-3xl sm:text-4xl inline-block ml-2 animate-bounce"
+        >🧪</span
+      >
+    </h2>
+    <p
+      class="text-lg sm:text-xl text-on-surface-muted dark:text-on-surface-muted max-w-3xl mx-auto"
+    >
+      Dive into the world of cryptography. Experiment with classic and modern
+      algorithms, understand their mechanics, and see them in action. Select a
+      tool from the sidebar to begin your exploration.
+    </p>
+  </header>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+    <!-- For the first card (Symmetric Ciphers) - Teal/Blue Circle -->
+    <div
+      class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden"
+    >
+      <div
+        class="absolute -top-10 -right-10 text-secondary/10 dark:text-secondary-dark/5 text-8xl transform rotate-12"
+      >
+        <i data-lucide="lock-keyhole"></i>
+      </div>
+      <div class="relative z-10">
+        <div
+          class="flex items-center justify-center h-16 w-16 rounded-full bg-secondary/10 dark:bg-secondary-dark/20 text-secondary dark:text-secondary-light mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-secondary/30"
+        >
+          <i data-lucide="shield-lock" class="h-8 w-8"></i>
+        </div>
+        <h3
+          class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
+        >
+          Symmetric Ciphers
+        </h3>
+        <p
+          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4"
+        >
+          Algorithms using a single key for both encryption and decryption. Fast
+          and efficient for bulk data.
         </p>
-    </header>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-        
-        <div class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden">
-            <div class="absolute -top-10 -right-10 text-secondary/10 dark:text-secondary-dark/5 text-8xl transform rotate-12">
-                <i data-lucide="lock-keyhole"></i>
-            </div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-center h-16 w-16 rounded-full bg-secondary/10 dark:bg-secondary-dark/20 text-secondary dark:text-secondary-light mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-secondary/30">
-                    <i data-lucide="shield" class="h-8 w-8"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark">Symmetric Ciphers</h3>
-                <p class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4">Algorithms using a single key for both encryption and decryption. Fast and efficient for bulk data.</p>
-                <div class="space-y-2">
-                    <a href="{{ url_for('xor_cipher_route') }}" class="sub-card-link">
-                        <i data-lucide="shuffle" class="sub-card-icon text-purple-500"></i> XOR Cipher
-                    </a>
-                    <a href="{{ url_for('caesar_cipher_route') }}" class="sub-card-link">
-                        <i data-lucide="rotate-ccw" class="sub-card-icon text-indigo-500"></i> Caesar Cipher
-                    </a>
-                    <a href="{{ url_for('block_cipher_route') }}" class="sub-card-link">
-                        <i data-lucide="cuboid" class="sub-card-icon text-sky-500"></i> Block Cipher (XOR)
-                    </a>
-                </div>
-            </div>
+        <div class="space-y-2">
+          <a href="{{ url_for('xor_cipher_route') }}" class="sub-card-link">
+            <i data-lucide="shuffle" class="sub-card-icon text-purple-500"></i>
+            XOR Cipher
+          </a>
+          <a href="{{ url_for('caesar_cipher_route') }}" class="sub-card-link">
+            <i
+              data-lucide="rotate-ccw"
+              class="sub-card-icon text-indigo-500"
+            ></i>
+            Caesar Cipher
+          </a>
+          <a href="{{ url_for('block_cipher_route') }}" class="sub-card-link">
+            <i data-lucide="cuboid" class="sub-card-icon text-sky-500"></i>
+            Block Cipher (XOR)
+          </a>
         </div>
-
-        <div class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden">
-            <div class="absolute -bottom-12 -left-12 text-primary/10 dark:text-primary-dark/5 text-9xl transform -rotate-12">
-                <i data-lucide="key"></i>
-            </div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-primary/30">
-                    <i data-lucide="key-round" class="h-8 w-8"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark">Asymmetric & Key Exchange</h3>
-                <p class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4">Systems using key pairs (public and private) for secure communication and key establishment.</p>
-                <div class="space-y-2">
-                    <a href="{{ url_for('diffie_hellman_route') }}" class="sub-card-link">
-                        <i data-lucide="users" class="sub-card-icon text-teal-500"></i> Diffie-Hellman
-                    </a>
-                    <a href="{{ url_for('rsa_cipher_route') }}" class="sub-card-link">
-                        <i data-lucide="lock" class="sub-card-icon text-rose-500"></i> RSA Cipher
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden">
-             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500/5 dark:text-orange-400/5 text-[12rem] transform">
-                <i data-lucide="fingerprint"></i>
-            </div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-center h-16 w-16 rounded-full bg-orange-500/10 dark:bg-orange-400/20 text-orange-500 dark:text-orange-400 mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-orange-500/30">
-                    <i data-lucide="hash" class="h-8 w-8"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark">Hashing Functions</h3>
-                <p class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4">One-way functions that map data of arbitrary size to a fixed-size string of characters (hash digest).</p>
-                 <div class="space-y-2">
-                    <a href="{{ url_for('hashing_functions_route') }}" class="sub-card-link">
-                        <i data-lucide="webhook" class="sub-card-icon text-orange-500"></i> MD5, SHA-1, SHA-256, SHA-512
-                    </a>
-                </div>
-            </div>
-        </div>
-
+      </div>
     </div>
+
+    <!-- For the second card (Asymmetric & Key Exchange) - Green Circle -->
+    <div
+      class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden"
+    >
+      <div
+        class="absolute -bottom-12 -left-12 text-primary/10 dark:text-primary-dark/5 text-9xl transform -rotate-12"
+      >
+        <i data-lucide="key"></i>
+      </div>
+      <div class="relative z-10">
+        <div
+          class="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 dark:bg-primary-dark/20 text-primary dark:text-primary-light mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-primary/30"
+        >
+          <i data-lucide="key-square" class="h-8 w-8"></i>
+        </div>
+        <h3
+          class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
+        >
+          Asymmetric & Key Exchange
+        </h3>
+        <p
+          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4"
+        >
+          Systems using key pairs (public and private) for secure communication
+          and key establishment.
+        </p>
+        <div class="space-y-2">
+          <a href="{{ url_for('diffie_hellman_route') }}" class="sub-card-link">
+            <i data-lucide="users" class="sub-card-icon text-teal-500"></i>
+            Diffie-Hellman
+          </a>
+          <a href="{{ url_for('rsa_cipher_route') }}" class="sub-card-link">
+            <i data-lucide="lock" class="sub-card-icon text-rose-500"></i> RSA
+            Cipher
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- For the third card (Hashing Functions) - Brown/Orange Circle -->
+    <div
+      class="group relative p-6 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border-light dark:border-border-dark overflow-hidden"
+    >
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-orange-500/5 dark:text-orange-400/5 text-[12rem] transform"
+      >
+        <i data-lucide="fingerprint"></i>
+      </div>
+      <div class="relative z-10">
+        <div
+          class="flex items-center justify-center h-16 w-16 rounded-full bg-orange-500/10 dark:bg-orange-400/20 text-orange-500 dark:text-orange-400 mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-orange-500/30"
+        >
+          <i data-lucide="file-lock" class="h-8 w-8"></i>
+        </div>
+        <h3
+          class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
+        >
+          Hashing Functions
+        </h3>
+        <p
+          class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4"
+        >
+          One-way functions that map data of arbitrary size to a fixed-size
+          string of characters (hash digest).
+        </p>
+        <div class="space-y-2">
+          <a
+            href="{{ url_for('hashing_functions_route') }}"
+            class="sub-card-link"
+          >
+            <i data-lucide="webhook" class="sub-card-icon text-orange-500"></i>
+            MD5, SHA-1, SHA-256, SHA-512
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-    .sub-card-link {
-        @apply flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 
+  .sub-card-link {
+    @apply flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 
                text-sm font-medium text-on-surface-muted dark:text-on-surface-dark 
                hover:text-primary dark:hover:text-primary-light transition-colors duration-150 shadow-sm hover:shadow-md;
+  }
+  .sub-card-icon {
+    @apply mr-2.5 h-5 w-5; /* Specific color to be applied with text-color utility */
+  }
+  .animate-bounce {
+    /* Tailwind's bounce is a bit much, let's make it subtle */
+    animation: subtle-bounce 2s infinite;
+  }
+  @keyframes subtle-bounce {
+    0%,
+    100% {
+      transform: translateY(-3%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
     }
-    .sub-card-icon {
-        @apply mr-2.5 h-5 w-5; /* Specific color to be applied with text-color utility */
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
-    .animate-bounce { /* Tailwind's bounce is a bit much, let's make it subtle */
-        animation: subtle-bounce 2s infinite;
-    }
-    @keyframes subtle-bounce {
-        0%, 100% { transform: translateY(-3%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
-        50% { transform: translateY(0); animation-timing-function: cubic-bezier(0,0,0.2,1); }
-    }
+  }
 </style>
 {% endblock %}

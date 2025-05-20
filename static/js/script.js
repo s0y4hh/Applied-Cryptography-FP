@@ -82,6 +82,58 @@ document.addEventListener('DOMContentLoaded', () => {
             typeWriter(el, text);
         }
     });
+
+    // Matrix background effect (cmatrix style)
+    const matrixBg = document.getElementById("matrix-bg");
+    
+    // Set density based on screen size
+    const screenWidth = window.innerWidth;
+    const columnCount = Math.floor(screenWidth / 20); // Controls density
+    
+    function createMatrixColumn() {
+      const column = document.createElement("div");
+      column.classList.add("matrix-text");
+      
+      // Generate matrix characters
+      const length = 15 + Math.floor(Math.random() * 25);
+      const chars = "01アイウエオカキクケコサシスセソタチツテト"; // Mix of digits and katakana
+      
+      // Create character spans with varying opacity
+      let html = '';
+      for (let i = 0; i < length; i++) {
+        const char = chars.charAt(Math.floor(Math.random() * chars.length));
+        const isLead = i === 0; // First character is the "lead"
+        html += `<span class="matrix-char ${isLead ? 'lead' : ''}">${char}</span><br>`;
+      }
+      column.innerHTML = html;
+      
+      // Position and speed
+      column.style.left = `${Math.random() * 100}%`;
+      column.style.animationDuration = `${8 + Math.random() * 10}s`;
+      column.style.fontSize = `${10 + Math.random() * 4}px`;
+      column.style.opacity = `${0.4 + Math.random() * 0.4}`;
+      
+      matrixBg.appendChild(column);
+      
+      // Remove after animation
+      setTimeout(() => {
+        column.remove();
+      }, 20000);
+    }
+    
+    // Create initial columns - denser than before
+    for (let i = 0; i < columnCount; i++) {
+      setTimeout(() => {
+        createMatrixColumn();
+      }, i * 100); // Stagger the creation
+    }
+    
+    // Add new columns periodically at random intervals
+    setInterval(() => {
+      if (matrixBg.childElementCount < columnCount * 1.5) {
+        createMatrixColumn();
+      }
+    }, 800);
 });
 
 // Add this to your script.js file
