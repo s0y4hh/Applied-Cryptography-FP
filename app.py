@@ -685,7 +685,7 @@ def ecc_cipher_route():
             context['ecc_message'] = message
             context['peer_public_key'] = peer_public_pem
             if not message or not peer_public_pem:
-                context['ecc_result'] = "❌ Message and recipient's public key are required."
+                context['ecc_result'] = "Message and recipient's public key are required."
             else:
                 try:
                     peer_public_key = serialization.load_pem_public_key(
@@ -713,14 +713,14 @@ def ecc_cipher_route():
                         format=serialization.PublicFormat.SubjectPublicKeyInfo
                     ).decode()
                     context['ecc_result'] = (
-                        "📤 Encrypted Message (share all 4 lines):\n"
+                        "Encrypted Message (share all 4 lines):\n"
                         f"Ephemeral Public Key:\n{ephemeral_pub_pem.strip()}\n"
                         f"IV: {base64.b64encode(iv).decode()}\n"
                         f"Tag: {base64.b64encode(encryptor.tag).decode()}\n"
                         f"Ciphertext: {base64.b64encode(ciphertext).decode()}"
                     )
                 except Exception as e:
-                    context['ecc_result'] = f"❌ Encryption failed: {str(e)}"
+                    context['ecc_result'] = f"Encryption failed: {str(e)}"
 
         elif operation == 'receive':
             enc_input = request.form.get('ecc_message', '')
@@ -752,9 +752,9 @@ def ecc_cipher_route():
                     backend=default_backend()
                 ).decryptor()
                 plaintext = decryptor.update(ciphertext) + decryptor.finalize()
-                context['ecc_result'] = f"📥 Decrypted message:\n{plaintext.decode(errors='replace')}"
+                context['ecc_result'] = f"Decrypted message:\n{plaintext.decode(errors='replace')}"
             except Exception as e:
-                context['ecc_result'] = f"❌ Decryption failed: {str(e)}"
+                context['ecc_result'] = f"Decryption failed: {str(e)}"
 
     return render_template('ecc_cipher.html', **context)
 
