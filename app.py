@@ -7,6 +7,12 @@ import math
 import random
 import io
 import datetime
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+import base64
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -644,7 +650,66 @@ def download_file(filename, token):
         
     return send_file(file_path, as_attachment=True, download_name=filename)
 
-import os
+@app.route('/ecc_cipher', methods=['GET', 'POST'])
+def ecc_cipher_route():
+    context = {}
+    if request.method == 'POST':
+        message = request.form.get('ecc_message', '')
+        operation = request.form.get('ecc_operation', 'encrypt')
+
+        # Generate ECC private keys for Alice and Bob (for demo)
+        private_key_alice = ec.generate_private_key(ec.SECP256R1(), default_backend())
+        private_key_bob = ec.generate_private_key(ec.SECP256R1(), default_backend())
+        public_key_bob = private_key_bob.public_key()
+
+        # Shared secret using ECDH
+        shared_secret = private_key_alice.exchange(ec.ECDH(), public_key_bob)
+        # Derive a symmetric key from the shared secret
+        derived_key = HKDF(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=None,
+            info=b'handshake data',
+            backend=default_backend()
+        ).derive(shared_secret)
+
+        if operation == 'encrypt':
+            # Encrypt the message using AES-GCM with the derived key
+            iv = os.urandom(12)
+            encryptor = Cipher(
+                algorithms.AES(derived_key),
+                modes.GCM(iv),
+                backend=default_backend()
+            ).encryptor()
+            ciphertext = encryptor.update(message.encode()) + encryptor.finalize()
+            result = {
+                'iv': base64.b64encode(iv).decode(),
+                'ciphertext': base64.b64encode(ciphertext).decode(),
+                'tag': base64.b64encode(encryptor.tag).decode()
+            }
+            context['ecc_result'] = f"Encrypted (base64):\nIV: {result['iv']}\nTag: {result['tag']}\nCiphertext: {result['ciphertext']}"
+        else:
+            # For demo, decrypt using the same keys (in real use, you'd pass these values)
+            try:
+                # Expecting input as base64 IV, tag, ciphertext separated by newlines
+                lines = message.strip().splitlines()
+                iv = base64.b64decode(lines[0].split(':', 1)[-1].strip())
+                tag = base64.b64decode(lines[1].split(':', 1)[-1].strip())
+                ciphertext = base64.b64decode(lines[2].split(':', 1)[-1].strip())
+                decryptor = Cipher(
+                    algorithms.AES(derived_key),
+                    modes.GCM(iv, tag),
+                    backend=default_backend()
+                ).decryptor()
+                plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                context['ecc_result'] = f"Decrypted message:\n{plaintext.decode(errors='replace')}"
+            except Exception as e:
+                context['ecc_result'] = f"Decryption failed: {str(e)}"
+
+        context['ecc_message'] = message
+        context['ecc_operation'] = operation
+
+    return render_template('ecc_cipher.html', **context)
 
 if __name__ == '__main__':
     # Get the port from the environment variable, default to 5000 for local development
