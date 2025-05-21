@@ -33,7 +33,7 @@
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full bg-secondary/10 dark:bg-secondary-dark/20 text-secondary dark:text-secondary-light mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-secondary/30"
         >
-          <i data-lucide="shield-lock" class="h-8 w-8 icon-hover"></i>
+          <i data-lucide="lock-keyhole-open" class="h-8 w-8 icon-hover"></i>
         </div>
         <h3
           class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
@@ -118,13 +118,9 @@
             ></i>
             RSA Cipher
           </a>
-          <!-- Add a coming soon feature with an icon -->
-          <a href="#" class="sub-card-link opacity-60 cursor-not-allowed">
-            <i
-              data-lucide="file-key"
-              class="sub-card-icon text-blue-500 icon-hover"
-            ></i>
-            ECC (Coming Soon)
+          <a href="{{ url_for('ecc_cipher_route') }}" class="sub-card-link">
+            <i data-lucide="file-key" class="sub-card-icon text-blue-500 icon-hover"></i>
+            ECC Cipher
           </a>
         </div>
       </div>
@@ -143,12 +139,12 @@
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full bg-orange-500/10 dark:bg-orange-400/20 text-orange-500 dark:text-orange-400 mb-5 mx-auto group-hover:scale-110 transition-transform border-2 border-orange-500/30"
         >
-          <i data-lucide="file-lock" class="h-8 w-8 icon-hover"></i>
+          <i data-lucide="fingerprint" class="h-8 w-8 icon-hover"></i>
         </div>
         <h3
           class="text-xl font-semibold mb-2 text-on-surface-light dark:text-on-surface-dark"
         >
-          Hashing Functions
+          Hash Functions
         </h3>
         <p
           class="text-sm text-on-surface-muted dark:text-on-surface-muted mb-4 flex items-start"
