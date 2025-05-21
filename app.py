@@ -8,7 +8,7 @@ import random
 import io
 import datetime
 from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
@@ -39,7 +39,8 @@ def inject_crypto_commands():
             'block_cipher_route': 'Block',
             'diffie_hellman_route': 'DH',
             'rsa_cipher_route': 'RSA',
-            'hashing_functions_route': 'Hash'
+            'hashing_functions_route': 'Hash',
+            'ecc_cipher_route': 'ECC'
         }
     }
 
@@ -653,61 +654,107 @@ def download_file(filename, token):
 @app.route('/ecc_cipher', methods=['GET', 'POST'])
 def ecc_cipher_route():
     context = {}
+
+    # Always use the session's ECC key pair (generate if not present)
+    if 'ecc_private_key' not in session:
+        private_key = ec.generate_private_key(ec.SECP256R1(), default_backend())
+        pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+        session['ecc_private_key'] = pem.decode()
+        session['ecc_public_key'] = private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ).decode()
+    else:
+        private_key = serialization.load_pem_private_key(
+            session['ecc_private_key'].encode(), password=None, backend=default_backend()
+        )
+
+    context['user_public_key'] = session['ecc_public_key']
+
     if request.method == 'POST':
-        message = request.form.get('ecc_message', '')
-        operation = request.form.get('ecc_operation', 'encrypt')
+        operation = request.form.get('ecc_operation', 'send')
+        context['ecc_operation'] = operation
 
-        # Generate ECC private keys for Alice and Bob (for demo)
-        private_key_alice = ec.generate_private_key(ec.SECP256R1(), default_backend())
-        private_key_bob = ec.generate_private_key(ec.SECP256R1(), default_backend())
-        public_key_bob = private_key_bob.public_key()
+        if operation == 'send':
+            message = request.form.get('ecc_message', '')
+            peer_public_pem = request.form.get('peer_public_key', '').strip()
+            context['ecc_message'] = message
+            context['peer_public_key'] = peer_public_pem
+            if not message or not peer_public_pem:
+                context['ecc_result'] = "❌ Message and recipient's public key are required."
+            else:
+                try:
+                    peer_public_key = serialization.load_pem_public_key(
+                        peer_public_pem.encode(), backend=default_backend()
+                    )
+                    ephemeral_private_key = ec.generate_private_key(ec.SECP256R1(), default_backend())
+                    ephemeral_public_key = ephemeral_private_key.public_key()
+                    shared_secret = ephemeral_private_key.exchange(ec.ECDH(), peer_public_key)
+                    derived_key = HKDF(
+                        algorithm=hashes.SHA256(),
+                        length=32,
+                        salt=None,
+                        info=b'ecies',
+                        backend=default_backend()
+                    ).derive(shared_secret)
+                    iv = os.urandom(12)
+                    encryptor = Cipher(
+                        algorithms.AES(derived_key),
+                        modes.GCM(iv),
+                        backend=default_backend()
+                    ).encryptor()
+                    ciphertext = encryptor.update(message.encode()) + encryptor.finalize()
+                    ephemeral_pub_pem = ephemeral_public_key.public_bytes(
+                        encoding=serialization.Encoding.PEM,
+                        format=serialization.PublicFormat.SubjectPublicKeyInfo
+                    ).decode()
+                    context['ecc_result'] = (
+                        "📤 Encrypted Message (share all 4 lines):\n"
+                        f"Ephemeral Public Key:\n{ephemeral_pub_pem.strip()}\n"
+                        f"IV: {base64.b64encode(iv).decode()}\n"
+                        f"Tag: {base64.b64encode(encryptor.tag).decode()}\n"
+                        f"Ciphertext: {base64.b64encode(ciphertext).decode()}"
+                    )
+                except Exception as e:
+                    context['ecc_result'] = f"❌ Encryption failed: {str(e)}"
 
-        # Shared secret using ECDH
-        shared_secret = private_key_alice.exchange(ec.ECDH(), public_key_bob)
-        # Derive a symmetric key from the shared secret
-        derived_key = HKDF(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=None,
-            info=b'handshake data',
-            backend=default_backend()
-        ).derive(shared_secret)
-
-        if operation == 'encrypt':
-            # Encrypt the message using AES-GCM with the derived key
-            iv = os.urandom(12)
-            encryptor = Cipher(
-                algorithms.AES(derived_key),
-                modes.GCM(iv),
-                backend=default_backend()
-            ).encryptor()
-            ciphertext = encryptor.update(message.encode()) + encryptor.finalize()
-            result = {
-                'iv': base64.b64encode(iv).decode(),
-                'ciphertext': base64.b64encode(ciphertext).decode(),
-                'tag': base64.b64encode(encryptor.tag).decode()
-            }
-            context['ecc_result'] = f"Encrypted (base64):\nIV: {result['iv']}\nTag: {result['tag']}\nCiphertext: {result['ciphertext']}"
-        else:
-            # For demo, decrypt using the same keys (in real use, you'd pass these values)
+        elif operation == 'receive':
+            enc_input = request.form.get('ecc_message', '')
+            peer_public_pem = request.form.get('peer_public_key', '').strip()
+            context['ecc_message'] = enc_input
+            context['peer_public_key'] = peer_public_pem
             try:
-                # Expecting input as base64 IV, tag, ciphertext separated by newlines
-                lines = message.strip().splitlines()
-                iv = base64.b64decode(lines[0].split(':', 1)[-1].strip())
-                tag = base64.b64decode(lines[1].split(':', 1)[-1].strip())
-                ciphertext = base64.b64decode(lines[2].split(':', 1)[-1].strip())
+                lines = enc_input.strip().splitlines()
+                pem_start = next(i for i, l in enumerate(lines) if l.startswith("-----BEGIN"))
+                pem_end = next(i for i, l in enumerate(lines) if l.startswith("-----END"))
+                ephemeral_pub_pem = "\n".join(lines[pem_start:pem_end+1])
+                iv = base64.b64decode([l for l in lines if l.startswith("IV:")][0].split(":",1)[1].strip())
+                tag = base64.b64decode([l for l in lines if l.startswith("Tag:")][0].split(":",1)[1].strip())
+                ciphertext = base64.b64decode([l for l in lines if l.startswith("Ciphertext:")][0].split(":",1)[1].strip())
+                ephemeral_public_key = serialization.load_pem_public_key(
+                    ephemeral_pub_pem.encode(), backend=default_backend()
+                )
+                shared_secret = private_key.exchange(ec.ECDH(), ephemeral_public_key)
+                derived_key = HKDF(
+                    algorithm=hashes.SHA256(),
+                    length=32,
+                    salt=None,
+                    info=b'ecies',
+                    backend=default_backend()
+                ).derive(shared_secret)
                 decryptor = Cipher(
                     algorithms.AES(derived_key),
                     modes.GCM(iv, tag),
                     backend=default_backend()
                 ).decryptor()
                 plaintext = decryptor.update(ciphertext) + decryptor.finalize()
-                context['ecc_result'] = f"Decrypted message:\n{plaintext.decode(errors='replace')}"
+                context['ecc_result'] = f"📥 Decrypted message:\n{plaintext.decode(errors='replace')}"
             except Exception as e:
-                context['ecc_result'] = f"Decryption failed: {str(e)}"
-
-        context['ecc_message'] = message
-        context['ecc_operation'] = operation
+                context['ecc_result'] = f"❌ Decryption failed: {str(e)}"
 
     return render_template('ecc_cipher.html', **context)
 
