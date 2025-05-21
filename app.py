@@ -486,9 +486,8 @@ def block_cipher_route():
             padding_mode = request.form.get('padding_mode', 'CMS')
             operation = request.form.get('operation_block', 'encrypt') 
             input_type = request.form.get('input_type_block', 'text') 
-            
             show_details = 'show_details_block' in request.form
-            
+
             context.update({
                 'current_block_size': block_size_bits,
                 'current_padding_mode': padding_mode,
@@ -497,10 +496,6 @@ def block_cipher_route():
                 'current_input_type_block': input_type,
                 'current_show_details': show_details
             })
-
-            if not key:
-                flash('Key is required for Block Cipher.', 'danger')
-                return render_template('block_cipher.html', **context)
 
             input_data_bytes = b''
             original_filename = f"{operation}ed_data.dat"
@@ -512,28 +507,15 @@ def block_cipher_route():
                     return render_template('block_cipher.html', **context)
                 input_data_bytes = text_data.encode('utf-8', errors='replace')
                 context['current_input_text_block'] = text_data
-            else: # input_type == 'file'
-                # Store the file and provide a download link:
-                if 'download_tokens' not in session:
-                    session['download_tokens'] = []
-                    
-                # Generate a unique token for this download
-                download_token = secrets.token_urlsafe(16)
-                session['download_tokens'].append(download_token)
-                
-                # Save the file temporarily
-                temp_filepath = os.path.join(app.config['TEMP_FOLDER'], download_token)
-                with open(temp_filepath, 'wb') as f:
-                    f.write(processed_data_bytes)
-                
-                # Add download URL to context
-                download_url = url_for('download_file', filename=original_filename, token=download_token)
-                context['download_url'] = download_url
-                context['download_filename'] = original_filename
-                
-                flash(f"File '{original_filename}' processed successfully. Click the download button below.", "success")
-                return render_template('block_cipher.html', **context)
+            else:  # file
+                file = request.files.get('input_file_block')
+                if not file or file.filename == '':
+                    flash('File is required if "File" input type is selected.', 'danger')
+                    return render_template('block_cipher.html', **context)
+                input_data_bytes = file.read()
+                original_filename = f"{operation}_{file.filename}"
 
+            # --- Always process the data here ---
             processed_data_bytes, details = crypto_logic.block_cipher_process(
                 data=input_data_bytes,
                 key_str=key,
@@ -542,34 +524,25 @@ def block_cipher_route():
                 operation=operation,
                 show_details=show_details
             )
-
             context['details_block'] = details if show_details else None
 
             if input_type == 'text':
                 try:
                     context['output_text_block'] = processed_data_bytes.decode('utf-8', errors='replace')
                 except UnicodeDecodeError:
-                     context['output_text_block'] = processed_data_bytes.hex() 
-                     flash("Output data is not valid UTF-8, shown as hex.", "warning")
-            else: # input_type == 'file'
-                # Store the file and provide a download link:
+                    context['output_text_block'] = processed_data_bytes.hex()
+                    flash("Output data is not valid UTF-8, shown as hex.", "warning")
+            else:  # file
                 if 'download_tokens' not in session:
                     session['download_tokens'] = []
-                    
-                # Generate a unique token for this download
                 download_token = secrets.token_urlsafe(16)
                 session['download_tokens'].append(download_token)
-                
-                # Save the file temporarily
                 temp_filepath = os.path.join(app.config['TEMP_FOLDER'], download_token)
                 with open(temp_filepath, 'wb') as f:
                     f.write(processed_data_bytes)
-                
-                # Add download URL to context
                 download_url = url_for('download_file', filename=original_filename, token=download_token)
                 context['download_url'] = download_url
                 context['download_filename'] = original_filename
-                
                 flash(f"File '{original_filename}' processed successfully. Click the download button below.", "success")
                 return render_template('block_cipher.html', **context)
 
