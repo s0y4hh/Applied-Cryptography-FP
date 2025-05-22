@@ -1,12 +1,12 @@
 /* cryptography_app/static/css/style.css */
 
 :root {
-  --hacker-bg: #0a0e12;
+  --hacker-bg: #0cc72b;
   --hacker-surface: #121920;
   --hacker-border: #1e2a35;
   --hacker-text: #e6edf3;
   --hacker-muted: #768390;
-  --hacker-primary: #00ff00;
+  --hacker-primary: #0d0e0d;
   --hacker-primary-glow: rgba(0, 255, 0, 0.25);
   --hacker-secondary: #00ccff;
   --hacker-danger: #ff375f;
