@@ -381,3 +381,100 @@ input[type="file"]:hover::file-selector-button {
   color: var(--hacker-secondary);
 }
 
+/* Icon hover effects */
+.icon-hover-effect {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.icon-hover-effect:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 3px var(--hacker-primary));
+}
+
+/* Rotation animation for specific icons */
+.icon-spin-hover:hover {
+  animation: spin-once 0.6s ease-in-out;
+}
+
+@keyframes spin-once {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- Custom dark dropdown for Kryptos --- */
+.form-select {
+  background-color: var(--hacker-surface);
+  color: var(--hacker-text);
+  border: 1px solid var(--hacker-border);
+  border-radius: 6px;
+  font-family: var(--hacker-terminal);
+  font-size: 1rem;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 8px rgba(0,255,0,0.07);
+  appearance: none;
+  outline: none;
+  position: relative;
+}
+
+.form-select:focus {
+  border-color: var(--hacker-primary);
+  box-shadow: 0 0 0 2px var(--hacker-primary-glow);
+}
+
+.form-select option {
+  background-color: var(--hacker-surface);
+  color: var(--hacker-text);
+}
+
+/* Custom dropdown arrow */
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' fill='none' stroke='lime' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
+}
+
+/* Sub-card styles */
+.sub-card-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* gap-3 */
+  padding: 0.75rem; /* p-3 */
+  background-color: #f9fafb; /* bg-gray-50 */
+  border-radius: 0.5rem; /* rounded-lg */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: #6b7280; /* text-on-surface-muted (approximate) */
+  transition: color 0.15s, background-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); /* shadow-sm */
+}
+
+.sub-card-link:hover {
+  background-color: #f3f4f6; /* hover:bg-gray-100 */
+  color: #00ff00; /* hover:text-primary */
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); /* hover:shadow-md */
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .sub-card-link {
+    background-color: rgba(55,65,81,0.5); /* dark:bg-gray-700/50 */
+    color: #94a3b8; /* dark:text-on-surface-dark (approximate) */
+  }
+  .sub-card-link:hover {
+    background-color: #374151; /* dark:hover:bg-gray-700 */
+    color: #66ffcc; /* dark:hover:text-primary-light (approximate) */
+  }
+}
+.sub-card-icon {
+  height: 1.25rem; /* h-5 */
+  width: 1.25rem;  /* w-5 */
+  flex-shrink: 0;  /* flex-shrink-0 */
+  align-self: center; /* self-center */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Remove mr-2.5, use gap-3 on parent for spacing */
+}
+

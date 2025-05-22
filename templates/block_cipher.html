@@ -81,9 +81,9 @@
             <input type="checkbox" id="show_details_block" name="show_details_block" class="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary-light" {{ 'checked' if current_show_details }}>
             <label for="show_details_block" class="ml-2 block text-sm text-on-surface-light dark:text-on-surface-dark">Show Details (for debugging/learning)</label>
         </div>
-        <button type="submit" class="w-full bg-primary hover:bg-primary-dark dark:bg-primary-light dark:hover:bg-primary text-white dark:text-gray-900 font-semibold py-3 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center">
-            <i data-lucide="zap" class="mr-2 h-5 w-5"></i> Process Data
-        </button>
+        <button type="submit" class="btn btn-primary w-full">
+            <i data-lucide="zap" class="mr-2 h-5 w-5"></i> Process
+          </button>
     </form>
 
     {% if output_text_block or output_file_info or details_block %}

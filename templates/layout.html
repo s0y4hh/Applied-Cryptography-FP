@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kryptos</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='square-terminal.svg') }}"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
     <link
@@ -78,24 +83,23 @@
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'xor_cipher_route' }}"
                 >
                   <span class="text-primary font-bold mr-1">|</span>
-                  <i data-lucide="shuffle" class="nav-icon-horizontal"></i> XOR
+                  XOR
                 </a>
                 <a
                   href="{{ url_for('caesar_cipher_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'caesar_cipher_route' }}"
                 >
                   <span class="text-primary font-bold mr-1">|</span>
-                  <i data-lucide="move" class="nav-icon-horizontal"></i> Caesar
+                  Caesar
                 </a>
                 <a
                   href="{{ url_for('block_cipher_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'block_cipher_route' }}"
                 >
                   <span class="text-primary font-bold mr-1">|</span>
-                  <i data-lucide="grid" class="nav-icon-horizontal"></i> Block
+                  Block
                 </a>
               </div>
-
               <!-- Asymmetric & Key Exchange -->
               <div class="flex items-center gap-4">
                 <span
@@ -107,14 +111,21 @@
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'diffie_hellman_route' }}"
                 >
                   <span class="text-primary font-bold mr-1">|</span>
-                  <i data-lucide="key" class="nav-icon-horizontal"></i> DH
+                  DH
                 </a>
                 <a
                   href="{{ url_for('rsa_cipher_route') }}"
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'rsa_cipher_route' }}"
                 >
                   <span class="text-primary font-bold mr-1">|</span>
-                  <i data-lucide="lock" class="nav-icon-horizontal"></i> RSA
+                  RSA
+                </a>
+                <a
+                  href="{{ url_for('ecc_cipher_route') }}"
+                  class="nav-link-horizontal {{ 'active' if request.endpoint == 'ecc_cipher_route' }}"
+                >
+                  <span class="text-primary font-bold mr-1">|</span>
+                  ECC
                 </a>
               </div>
 
@@ -129,7 +140,6 @@
                   class="nav-link-horizontal {{ 'active' if request.endpoint == 'hashing_functions_route' }}"
                 >
                   <span class="text-primary font-bold mr-1">|</span>
-                  <i data-lucide="fingerprint" class="nav-icon-horizontal"></i>
                   Hash
                 </a>
               </div>
@@ -149,7 +159,135 @@
           </span>
         </div>
 
-        {% include 'partials/_flashes.html' %} {% block content %}{% endblock %}
+        {% include 'partials/_flashes.html' %} {% block content %}
+        <div class="max-w-2xl mx-auto">
+          <div class="flex items-center mb-6">
+            <i data-lucide="file-key" class="h-8 w-8 text-blue-500 mr-3"></i>
+            <h2
+              class="text-3xl font-bold text-on-surface-light dark:text-on-surface-dark"
+            >
+              ECC Secure Messenger
+            </h2>
+          </div>
+          <form
+            method="POST"
+            class="space-y-6 bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-xl border border-border-light dark:border-border-dark"
+          >
+            <div>
+              <label
+                for="import_private_key"
+                class="block text-sm font-medium mb-1"
+                >Import Your ECC Private Key (PEM):</label
+              >
+              <textarea
+                id="import_private_key"
+                name="import_private_key"
+                class="form-textarea font-mono w-full"
+                rows="3"
+                placeholder="Paste your PEM private key here..."
+              ></textarea>
+              <button
+                type="submit"
+                name="ecc_operation"
+                value="import_private_key"
+                class="btn btn-secondary mt-2"
+              >
+                Import Private Key
+              </button>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1"
+                >Your ECC Public Key (share with your peer):</label
+              >
+              <textarea
+                readonly
+                class="form-textarea-readonly font-mono w-full"
+                rows="3"
+              >
+{{ user_public_key }}</textarea
+              >
+              <button
+                type="submit"
+                name="ecc_operation"
+                value="generate_keys"
+                class="btn btn-secondary mt-2"
+              >
+                Generate New Key Pair
+              </button>
+            </div>
+            <hr class="my-4" />
+            <div>
+              <label
+                for="peer_public_key"
+                class="block text-sm font-medium mb-1"
+                >Peer's ECC Public Key:</label
+              >
+              <textarea
+                id="peer_public_key"
+                name="peer_public_key"
+                class="form-textarea font-mono w-full"
+                rows="3"
+                placeholder="Paste the other party's ECC public key here..."
+                required
+              >
+{{ peer_public_key or '' }}</textarea
+              >
+            </div>
+            <div>
+              <label for="ecc_message" class="block text-sm font-medium mb-1"
+                >Message (to send) or Encrypted Input (to receive):</label
+              >
+              <textarea
+                id="ecc_message"
+                name="ecc_message"
+                class="form-textarea font-mono w-full"
+                rows="3"
+                placeholder="Enter message or encrypted input..."
+              >
+{{ ecc_message or '' }}</textarea
+              >
+            </div>
+            <div class="flex gap-4">
+              <button
+                type="submit"
+                name="ecc_operation"
+                value="send"
+                class="btn btn-primary flex-1"
+              >
+                <i data-lucide="send" class="mr-2 h-5 w-5"></i> Send Message
+                (Encrypt)
+              </button>
+              <button
+                type="submit"
+                name="ecc_operation"
+                value="receive"
+                class="btn btn-primary flex-1"
+              >
+                <i data-lucide="inbox" class="mr-2 h-5 w-5"></i> Receive Message
+                (Decrypt)
+              </button>
+            </div>
+          </form>
+          {% if ecc_result %}
+          <div
+            class="mt-8 bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-xl border border-border-light dark:border-border-dark"
+          >
+            <h3
+              class="text-2xl font-semibold mb-4 text-on-surface-light dark:text-on-surface-dark"
+            >
+              Result:
+            </h3>
+            <textarea
+              readonly
+              class="form-textarea-readonly font-mono w-full"
+              rows="5"
+            >
+{{ ecc_result }}</textarea
+            >
+          </div>
+          {% endif %}
+        </div>
+        {% endblock %}
       </main>
     </div>
 
@@ -157,8 +295,14 @@
       class="text-center p-4 text-xs text-gray-600 border-t border-border print:hidden"
     >
       <span class="text-primary">[</span> Kryptos Terminal
-      <span class="text-primary">]</span> ~ Access granted at {{
-      SCRIPT_START_TIME.strftime('%Y-%m-%d %H:%M:%S') }}
+      <span class="text-primary">]</span> ~ Access granted By
+      <a
+        href="https://www.linkedin.com/in/jayson-asiado"
+        target="_blank"
+        rel="noopener"
+        class="text-primary hover:underline font-semibold"
+        >s0y4hh</a
+      >.
     </footer>
 
     <!-- Add Matrix Effect Script -->

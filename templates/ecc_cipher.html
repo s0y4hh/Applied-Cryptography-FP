@@ -1,0 +1,41 @@
+<!-- filepath: /home/kiryuin/Documents/Applied-Cryptography-FP/templates/ecc_cipher.html -->
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center mb-6">
+    <i data-lucide="file-key" class="h-8 w-8 text-blue-500 mr-3"></i>
+    <h2 class="text-3xl font-bold text-on-surface-light dark:text-on-surface-dark">
+      ECC Secure Messenger (ECIES)
+    </h2>
+  </div>
+  <form method="POST" class="space-y-6 bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-xl border border-border-light dark:border-border-dark">
+    <div>
+      <label class="block text-sm font-medium mb-1">Your ECC Public Key (share with your peer):</label>
+      <textarea readonly class="form-textarea-readonly font-mono w-full" rows="3">{{ user_public_key }}</textarea>
+    </div>
+    <hr class="my-4"/>
+    <div>
+      <label for="peer_public_key" class="block text-sm font-medium mb-1">Peer's ECC Public Key (for sending):</label>
+      <textarea id="peer_public_key" name="peer_public_key" class="form-textarea font-mono w-full" rows="3" placeholder="Paste the other party's ECC public key here...">{{ peer_public_key or '' }}</textarea>
+    </div>
+    <div>
+      <label for="ecc_message" class="block text-sm font-medium mb-1">Message (to send) or Encrypted Input (to receive):</label>
+      <textarea id="ecc_message" name="ecc_message" class="form-textarea font-mono w-full" rows="5" placeholder="Enter message to encrypt, or paste encrypted input to decrypt...">{{ ecc_message or '' }}</textarea>
+    </div>
+    <div class="flex gap-4">
+      <button type="submit" name="ecc_operation" value="send" class="btn btn-primary py-2 px-3 text-base font-semibold flex-1">
+        <i data-lucide="send" class="mr-2 h-5 w-5"></i> Send Message (Encrypt)
+      </button>
+      <button type="submit" name="ecc_operation" value="receive" class="btn btn-primary py-2 px-3 text-base font-semibold flex-1">
+        <i data-lucide="inbox" class="mr-2 h-5 w-5"></i> Receive Message (Decrypt)
+      </button>
+    </div>
+  </form>
+  {% if ecc_result %}
+  <div class="mt-8 bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-xl border border-border-light dark:border-border-dark">
+    <h3 class="text-2xl font-semibold mb-4 text-on-surface-light dark:text-on-surface-dark">Result:</h3>
+    <textarea readonly class="form-textarea-readonly font-mono w-full" rows="8">{{ ecc_result }}</textarea>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
