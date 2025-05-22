@@ -7,8 +7,10 @@
         <h2 class="text-3xl font-bold text-on-surface-light dark:text-on-surface-dark">Diffie-Hellman Key Exchange</h2>
     </div>
     <p class="mb-6 text-on-surface-muted dark:text-on-surface-muted">
-        Simulate a Diffie-Hellman key exchange. First, set up your parameters (p, g, private key) to generate your public key.
-        Then, "exchange" public keys with a partner and use the derived shared secret to encrypt/decrypt messages (using XOR for this demo).
+        This simulation demonstrates the Diffie-Hellman key exchange protocol. 
+        You will select a prime modulus (p), a generator (g), and your private key to compute your public key. 
+        After exchanging public keys with a partner, both parties derive a shared secret. 
+        This shared secret is then used as a key to encrypt and decrypt messages using a simple XOR cipher for demonstration purposes.
     </p>
 
     <form method="POST" action="{{ url_for('diffie_hellman_route') }}" class="space-y-8">
