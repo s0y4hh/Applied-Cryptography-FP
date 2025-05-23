@@ -1,25 +1,74 @@
 /* cryptography_app/static/css/style.css */
 
+/* Root CSS variables with dark and light themes */
 :root {
-  --hacker-bg: #0a0e12;
-  --hacker-surface: #121920;
-  --hacker-border: #1e2a35;
-  --hacker-text: #e6edf3;
-  --hacker-muted: #768390;
+  /* Fonts */
+  --hacker-primary-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --hacker-terminal: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* Both themes share these properties */
   --hacker-primary: #00ff00;
-  --hacker-primary-glow: rgba(0, 255, 0, 0.25);
-  --hacker-secondary: #00ccff;
+  --hacker-primary-glow: rgba(0, 255, 0, 0.5);
+  --hacker-secondary: #00ffcc;
   --hacker-danger: #ff375f;
-  --hacker-terminal: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  --hacker-warning: #ff9f0a;
 }
 
+/* Dark theme (default) */
+:root, .dark {
+  --hacker-bg: #0a0d11;
+  --hacker-surface: #10151a;
+  --hacker-card-bg: #161b22;
+  --hacker-text: #e6e6e6;
+  --hacker-text-secondary: #a0a0a0;
+  --hacker-border: rgba(255, 255, 255, 0.1);
+  --hacker-code-bg: rgba(0, 0, 0, 0.3);
+  --hacker-hover-bg: rgba(255, 255, 255, 0.08);
+  --hacker-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Light theme */
+:root.light {
+  --hacker-bg: #f0f2f5;
+  --hacker-surface: #ffffff;
+  --hacker-card-bg: #ffffff;
+  --hacker-text: #121212;
+  --hacker-text-secondary: #505050;
+  --hacker-border: rgba(0, 0, 0, 0.1);
+  --hacker-code-bg: rgba(0, 0, 0, 0.05);
+  --hacker-hover-bg: rgba(0, 0, 0, 0.03);
+  --hacker-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Apply theme colors to body and other elements */
 body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   background-color: var(--hacker-bg);
   color: var(--hacker-text);
-  font-family: var(--hacker-terminal);
-  border-top: 2px solid var(--hacker-primary);
+  font-family: var(--hacker-primary-font);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* More specific overrides for .light theme if needed */
+.light .processing-details-box {
+  background: #eef1f5;
+  color: #121212;
+  border-color: var(--hacker-border);
+}
+
+.light code, 
+.light .code-block {
+  background-color: #f0f0f0;
+  color: #2a2a2a;
+}
+
+.light .flash-message-danger {
+  color: #d01a1a;
+  background-color: rgba(255, 55, 95, 0.1);
+}
+
+.light .flash-message-success {
+  color: #008800;
+  background-color: rgba(0, 255, 0, 0.1);
 }
 
 /* Custom scrollbar */
@@ -476,5 +525,94 @@ input[type="file"]:hover::file-selector-button {
   align-items: center;
   justify-content: center;
   /* Remove mr-2.5, use gap-3 on parent for spacing */
+}
+
+/* Add this after your existing CSS to style the dark mode toggle */
+.theme-toggle-wrapper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-color: var(--hacker-card-bg);
+  border: 1px solid var(--hacker-border);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px var(--hacker-shadow);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-wrapper:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 15px var(--hacker-primary-glow);
+}
+
+.theme-toggle-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--hacker-text);
+}
+
+/* Add these specific light mode fixes at the end of your CSS file */
+
+/* Fix button contrast in light mode */
+.light .btn {
+  background-color: var(--hacker-surface);
+  color: #008800;
+  border-color: #008800;
+}
+
+.light .btn-primary {
+  background-color: var(--hacker-primary);
+  color: #000;
+  font-weight: bold;
+}
+
+/* Fix form inputs in light mode */
+.light .form-input, 
+.light .form-textarea, 
+.light .form-select {
+  background-color: #ffffff;
+  color: #121212;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Fix terminal card in light mode */
+.light .terminal-card {
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.light .terminal-card-header {
+  background-color: #f0f0f0;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .terminal-header-btn {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Fix file selector button in light mode */
+.light input[type="file"].form-file::file-selector-button,
+.light input[type="file"]::file-selector-button {
+  background: var(--hacker-primary);
+  color: #000;
+}
+
+.light input[type="file"].form-file:hover::file-selector-button,
+.light input[type="file"]:hover::file-selector-button {
+  background: #ffffff;
+  color: var(--hacker-primary);
+  border: 1px solid var(--hacker-primary);
+}
+
+/* Fix code highlighting in light mode */
+.light .code-highlight {
+  color: #008080;
 }
 
