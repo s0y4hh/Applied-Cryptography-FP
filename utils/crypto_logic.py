@@ -203,52 +203,40 @@ def unpad_data(padded_data_bytes, block_size_bytes, mode='CMS'):
 def block_cipher_process(data, key_str, block_size_bits, padding_mode, operation, show_details=False):
     """
     Processes data using a simple XOR-based block cipher.
+    Optimized for large files and memory efficiency.
     """
     if block_size_bits % 8 != 0:
         raise ValueError("Block size must be a multiple of 8 bits.")
     block_size_bytes = block_size_bits // 8
-    
-    key_bytes = key_str.encode('utf-8', errors='replace')
-    if not key_bytes: raise ValueError("Block cipher key cannot be empty.")
-    
-    block_key = (key_bytes * (block_size_bytes // len(key_bytes) + 1))[:block_size_bytes]
 
+    key_bytes = key_str.encode('utf-8', errors='replace')
+    if not key_bytes:
+        raise ValueError("Block cipher key cannot be empty.")
+
+    block_key = (key_bytes * (block_size_bytes // len(key_bytes) + 1))[:block_size_bytes]
     details = []
     processed_data = bytearray()
 
+    # Padding for encryption
     if operation == 'encrypt':
         padded_data, padding_bytes = pad_data(data, block_size_bytes, padding_mode)
+        data_to_process = padded_data
         if show_details:
-            details.append(f"Original data ({len(data)} bytes): {data.hex()[:128] if len(data) > 64 else data.hex()}{'...' if len(data) > 64 else ''}")
             details.append(f"Padding mode: {padding_mode}, Block size: {block_size_bytes} bytes")
             details.append(f"Padding added ({len(padding_bytes)} bytes): {padding_bytes.hex()}")
-            details.append(f"Padded data ({len(padded_data)} bytes): {padded_data.hex()[:128] if len(padded_data) > 64 else padded_data.hex()}{'...' if len(padded_data) > 64 else ''}")
-        data_to_process = padded_data
-    else: 
-        data_to_process = data 
+    else:
+        data_to_process = data
 
-    if show_details:
-        details.append(f"Key used for blocks ({len(block_key)} bytes): {block_key.hex()}")
-
-    if len(data_to_process) % block_size_bytes != 0 and operation == 'decrypt':
-        # This is a strong indicator of corrupted ciphertext or wrong block size during decryption
-        details.append(f"Warning: Decryption input data length ({len(data_to_process)}) is not a multiple of block size ({block_size_bytes}). Results may be incorrect.")
-        # Depending on strictness, one might raise an error here.
-        # For this demo, we'll proceed but it's not ideal.
-
-    for i in range(0, len(data_to_process), block_size_bytes):
-        block = data_to_process[i : i + block_size_bytes]
-        
-        current_block_key = block_key
-        if len(block) < block_size_bytes: # Handle potential last partial block (e.g. if input wasn't padded for decrypt)
-             current_block_key = block_key[:len(block)]
-        
+    # Use memoryview for efficient slicing
+    mv = memoryview(data_to_process)
+    for i in range(0, len(mv), block_size_bytes):
+        block = mv[i:i+block_size_bytes]
+        current_block_key = block_key[:len(block)]
         processed_block = bytes(b ^ k for b, k in zip(block, current_block_key))
         processed_data.extend(processed_block)
-        
         if show_details:
             details.append(f"Block {i//block_size_bytes + 1}:")
-            details.append(f"  Input Block  ({len(block)} bytes): {block.hex()}")
+            details.append(f"  Input Block  ({len(block)} bytes): {block.tobytes().hex()}")
             details.append(f"  XORed Block ({len(processed_block)} bytes): {processed_block.hex()}")
 
     if operation == 'decrypt':
@@ -259,9 +247,10 @@ def block_cipher_process(data, key_str, block_size_bits, padding_mode, operation
                 details.append(f"Unpadding mode: {padding_mode}")
                 details.append(f"Unpadded data ({len(final_data)} bytes): {final_data.hex()[:128] if len(final_data) > 64 else final_data.hex()}{'...' if len(final_data) > 64 else ''}")
         except ValueError as e:
-            if show_details: details.append(f"Unpadding Error: {str(e)}. Returning raw decrypted data.")
-            final_data = bytes(processed_data) 
-    else: 
+            if show_details:
+                details.append(f"Unpadding Error: {str(e)}. Returning raw decrypted data.")
+            final_data = bytes(processed_data)
+    else:
         final_data = bytes(processed_data)
 
     return final_data, details

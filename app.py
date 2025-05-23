@@ -95,9 +95,10 @@ def xor_cipher_route():
                 if not file or file.filename == '':
                     flash('File is required for "File" type.', 'danger')
                     return render_template('xor_cipher.html', **context)
-                input_data_bytes = file.read()
+                # Read file in chunks for large files
+                input_data_bytes = b''.join(chunk for chunk in iter(lambda: file.read(4096), b''))
                 context['original_filename_xor'] = file.filename
-                original_filename = file.filename  # <-- Fix: define original_filename
+                original_filename = file.filename
             processed_bytes, byte_details = crypto_logic.xor_cipher_process(input_data_bytes, key)
             context['byte_details_xor'] = byte_details if input_type == 'text' and len(input_data_bytes) < 256 else None
             if input_type == 'text':
@@ -107,33 +108,18 @@ def xor_cipher_route():
                     context['output_text_xor'] = processed_bytes.hex()
                     flash("Output data is not valid UTF-8, shown as hex.", "warning")
             else:
-                # Instead of immediately returning the file:
-                # file_stream = io.BytesIO(processed_bytes)
-                # response = make_response(send_file(file_stream, as_attachment=True, download_name=original_filename))
-                # response.headers["Content-Disposition"] = f"attachment; filename={original_filename}"
-                # flash(f"File '{original_filename}' processed and ready for download.", "success")
-                # return response
-    
-                # Store the file and provide a download link:
                 if 'download_tokens' not in session:
                     session['download_tokens'] = []
-                    
-                # Generate a unique token for this download
                 download_token = secrets.token_urlsafe(16)
                 session['download_tokens'].append(download_token)
-                
-                # Save the file temporarily
                 temp_filepath = os.path.join(app.config['TEMP_FOLDER'], download_token)
                 with open(temp_filepath, 'wb') as f:
                     f.write(processed_bytes)
-                
-                # Add download URL to context
                 download_url = url_for('download_file', filename=original_filename, token=download_token)
                 context['download_url'] = download_url
                 context['download_filename'] = original_filename
-                
                 flash(f"File '{original_filename}' processed successfully. Click the download button below.", "success")
-                
+                return render_template('xor_cipher.html', **context)
         except Exception as e:
             flash(f'An unexpected error occurred: {str(e)}', 'danger')
     return render_template('xor_cipher.html', **context)
