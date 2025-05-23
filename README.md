@@ -12,10 +12,13 @@ _May 2025_
 
 ### Group Members
 
-1
-2
-3
-4
+Asido, Jayson A.
+
+Filio, Charles Andy P.
+
+Lanuza, Robert S.
+
+Banaria, Joshua Charles B.
 
 ## Introduction
 
